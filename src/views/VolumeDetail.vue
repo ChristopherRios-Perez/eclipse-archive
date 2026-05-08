@@ -5,7 +5,10 @@ import { useProgress } from '../composables/useProgress.js'
 
 const route = useRoute()
 const router = useRouter()
-const { isVolumeCompleted, toggleVolume, setCurrentProgress } = useProgress()
+const { state, isVolumeCompleted, toggleVolume, setCurrentProgress } = useProgress()
+
+const justSaved = ref(false)
+
 
 const volumeId = computed(() => parseInt(route.params.id))
 const volume = ref(null)
@@ -71,8 +74,12 @@ const arcColors = {
 function markCurrentlyReading() {
   if (volume.value) {
     setCurrentProgress(volume.value.volume, volume.value.chapterStart)
+    justSaved.value = true
+    setTimeout(() => { justSaved.value = false }, 2000)
   }
 }
+
+const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
 </script>
 
 <template>
@@ -127,9 +134,14 @@ function markCurrentlyReading() {
           </button>
           <button
             @click="markCurrentlyReading"
-            class="w-56 py-2.5 rounded-xl text-sm font-medium border border-[#3d3d4d] text-[#8888a0] hover:border-[#c10b21]/40 hover:text-white transition-colors"
+            class="w-56 py-2.5 rounded-xl text-sm font-medium border transition-colors"
+            :class="justSaved
+              ? 'border-green-500/40 text-green-400 bg-green-500/10'
+              : isCurrentVolume
+                ? 'border-[#c10b21]/40 text-[#c10b21] bg-[#c10b21]/10 hover:bg-[#c10b21]/20'
+                : 'border-[#3d3d4d] text-[#8888a0] hover:border-[#c10b21]/40 hover:text-white'"
           >
-            Set as Current
+            {{ justSaved ? '✓ Saved!' : isCurrentVolume ? '★ Currently Reading' : 'Set as Current' }}
           </button>
         </div>
       </div>
