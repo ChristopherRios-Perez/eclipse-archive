@@ -1,9 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useProgress } from '../composables/useProgress.js'
+import { useAuth } from '../composables/useAuth.js'
+import { useSidebar } from '../composables/useSidebar.js'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const { username, isGuest, logout } = useAuth()
+const { isOpen } = useSidebar()
+
 const {
   state,
   strugglePercentage,
@@ -15,6 +20,42 @@ const {
   timeAgo,
   setCurrentProgress,
 } = useProgress()
+
+// --- Cover fetching (declared after state is available) ---
+const showUserMenu = ref(false)
+const currentCoverUrl = ref(null)
+const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
+const coversCache = ref([])
+
+async function loadCovers() {
+  if (coversCache.value.length) return
+  try {
+    let all = [], offset = 0
+    while (true) {
+      const r = await fetch(`https://api.mangadex.org/cover?manga[]=${MANGA_ID}&limit=100&offset=${offset}&order[volume]=asc`)
+      if (!r.ok) break
+      const { data, total } = await r.json()
+      all = all.concat(data)
+      offset += 100
+      if (offset >= total || !data.length) break
+    }
+    coversCache.value = all
+  } catch {}
+}
+
+function resolveVolumeCover(vol) {
+  const num = parseInt(vol)
+  const match =
+    coversCache.value.find(c => parseInt(c.attributes.volume) === num && c.attributes.locale === 'en') ||
+    coversCache.value.find(c => parseInt(c.attributes.volume) === num)
+  if (match) currentCoverUrl.value = `https://uploads.mangadex.org/covers/${MANGA_ID}/${match.attributes.fileName}.512.jpg`
+}
+
+onMounted(async () => { await loadCovers(); resolveVolumeCover(state.currentVolume) })
+watch(() => state.currentVolume, vol => resolveVolumeCover(vol))
+
+function handleLogout() { showUserMenu.value = false; logout() }
+// ---
 
 const showUpdateModal = ref(false)
 const editVolume = ref(state.currentVolume)
@@ -38,12 +79,13 @@ function formatTime(iso) {
 </script>
 
 <template>
-  <div class="p-6 min-h-screen bg-[#111114]">
+  <div class="p-6 min-h-screen w-full">
+
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <div>
+      <div class="transition-all duration-300" :class="isOpen ? '' : 'pl-6'">
         <h1 class="text-2xl font-bold text-white">Dashboard</h1>
-        <p class="text-[#5a5a72] text-sm">Welcome back, Hunter</p>
+        <p class="text-[#5a5a72] text-sm">Welcome back, {{ username || 'Hunter' }}</p>
       </div>
       <div class="flex items-center gap-3">
         <div class="relative">
@@ -59,7 +101,37 @@ function formatTime(iso) {
         <button class="w-8 h-8 rounded-lg bg-[#23232b] border border-[#3d3d4d] flex items-center justify-center text-[#8888a0] hover:text-white hover:border-[#c10b21] transition-colors">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
         </button>
-        <div class="w-8 h-8 rounded-lg bg-[#c10b21] flex items-center justify-center text-white font-bold text-sm">G</div>
+        <!-- Avatar + dropdown -->
+        <div class="relative">
+          <button
+            @click="showUserMenu = !showUserMenu"
+            class="w-8 h-8 rounded-lg bg-[#c10b21] flex items-center justify-center text-white font-bold text-sm hover:bg-[#a00d20] transition-colors"
+          >
+            {{ username ? username[0].toUpperCase() : 'G' }}
+          </button>
+
+          <div
+            v-if="showUserMenu"
+            class="absolute right-0 top-10 w-48 bg-[#1c1c22] border border-[#3d3d4d] rounded-xl shadow-2xl z-50 overflow-hidden"
+          >
+            <div class="px-4 py-3 border-b border-[#2d2d38]">
+              <p class="text-white font-medium text-sm truncate">{{ username }}</p>
+              <p class="text-[#5a5a72] text-xs mt-0.5">{{ isGuest ? 'Guest session' : 'Signed in' }}</p>
+            </div>
+            <button
+              @click="handleLogout"
+              class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#8888a0] hover:text-white hover:bg-[#2d2d38] transition-colors"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+              </svg>
+              Sign Out
+            </button>
+          </div>
+
+          <!-- Click-outside overlay -->
+          <div v-if="showUserMenu" class="fixed inset-0 z-40" @click="showUserMenu = false"></div>
+        </div>
       </div>
     </div>
 
@@ -115,15 +187,21 @@ function formatTime(iso) {
         <!-- Currently Reading Card -->
         <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-5">
           <div class="flex gap-5">
-            <!-- Cover art placeholder -->
+            <!-- Cover art -->
             <div class="w-36 h-52 bg-[#23232b] rounded-lg shrink-0 relative overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#111114]/80"></div>
-              <div class="absolute inset-0 flex items-center justify-center">
+              <img
+                v-if="currentCoverUrl"
+                :src="currentCoverUrl"
+                :alt="`Berserk Vol. ${state.currentVolume}`"
+                class="w-full h-full object-cover"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center">
                 <div class="text-center">
                   <div class="text-[#c10b21] font-black text-5xl leading-none">B</div>
                   <div class="text-[#5a5a72] text-xs mt-1">BERSERK</div>
                 </div>
               </div>
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#111114]/60"></div>
               <span class="absolute top-2 right-2 bg-[#c10b21] text-white text-xs px-2 py-0.5 rounded font-medium">Reading Now</span>
             </div>
 
@@ -327,3 +405,5 @@ function formatTime(iso) {
     </div>
   </div>
 </template>
+
+
