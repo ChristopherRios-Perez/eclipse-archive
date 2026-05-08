@@ -2,18 +2,20 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProgress } from '../composables/useProgress.js'
+import { useSidebar } from '../composables/useSidebar.js'
 
 const router = useRouter()
 const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes } = useProgress()
+const { isOpen } = useSidebar() // used to nudge the header title when sidebar collapses
 
-const volumes = ref([])
+const volumes = ref([]) // populated after the MangaDex cover fetch resolves
 const loading = ref(true)
 const error = ref(null)
 const searchQuery = ref('')
 const filterStatus = ref('all')
-const viewMode = ref('grid')
+const viewMode = ref('grid') // 'grid' or 'list'
 
-// Berserk volume data enriched from Jikan API + known data
+// Static volume metadata — covers get attached later after the API call
 const berserkVolumes = Array.from({ length: 41 }, (_, i) => ({
   id: i + 1,
   title: `Berserk Vol. ${i + 1}`,
@@ -22,6 +24,7 @@ const berserkVolumes = Array.from({ length: 41 }, (_, i) => ({
   arc: getArc(i + 1),
 }))
 
+// Per-volume chapter counts pulled from published data — most are 8, a few early ones are 9
 function getChapterCount(vol) {
   const map = {1:8,2:8,3:8,4:8,5:8,6:8,7:9,8:9,9:9,10:9,11:9,12:8,13:8,14:8,15:8,16:8,17:8,18:8,19:8,20:8,21:8,22:8,23:8,24:8,25:8,26:8,27:8,28:8,29:8,30:8,31:8,32:8,33:8,34:8,35:8,36:8,37:8,38:8,39:8,40:8,41:8}
   return map[vol] ?? 8
@@ -36,32 +39,54 @@ function getArc(vol) {
   return 'Fantasia'
 }
 
+// MangaDex UUID for Berserk — used to scope cover art queries
+const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
+
 async function fetchBerserkCovers() {
   try {
-    // Fetch Berserk manga editions from Jikan API
-    const resp = await fetch('https://api.jikan.moe/v4/manga/2/volumes')
-    if (!resp.ok) throw new Error('API error')
-    const data = await resp.json()
-    // Map any cover images to our volumes if available
-    if (data?.data) {
-      data.data.forEach((v) => {
-        const idx = (v.volume ?? 1) - 1
-        if (idx >= 0 && idx < berserkVolumes.length && v.images?.jpg?.image_url) {
-          berserkVolumes[idx].coverUrl = v.images.jpg.image_url
+    const coverMap = {}
+    let offset = 0
+    const limit = 100 // MangaDex max per request
+
+    // Paginate until we have all covers or all 41 volumes are filled
+    while (Object.keys(coverMap).length < 41) {
+      const resp = await fetch(
+        `https://api.mangadex.org/cover?manga[]=${MANGA_ID}&limit=${limit}&offset=${offset}&order[volume]=asc`
+      )
+      if (!resp.ok) throw new Error()
+      const { data, total } = await resp.json()
+      if (!data.length) break
+
+      data.forEach(cover => {
+        const vol = parseInt(cover.attributes.volume)
+        // Skip non-numeric volumes (specials, etc.) and only take the first cover per volume
+        if (!isNaN(vol) && vol >= 1 && vol <= 41 && !coverMap[vol]) {
+          coverMap[vol] = `https://uploads.mangadex.org/covers/${MANGA_ID}/${cover.attributes.fileName}.512.jpg`
         }
       })
+
+      offset += limit
+      if (offset >= total) break
     }
+
+    // Attach cover URLs directly onto the volume objects — mutating is fine here
+    berserkVolumes.forEach(v => {
+      if (coverMap[v.volume]) v.coverUrl = coverMap[v.volume]
+    })
   } catch {
-    // Silently fall back to placeholder art - API may rate-limit
+    // If the API is down or rate-limited, volumes still render with the B placeholder
   }
+  // Always update volumes and clear loading, even on failure
   volumes.value = [...berserkVolumes]
   loading.value = false
 }
 
 onMounted(fetchBerserkCovers)
 
+// Recomputes whenever search, filter, or progress state changes
 const filtered = computed(() => {
   return volumes.value.filter(v => {
+    // Search matches against both title and arc name
     const matchSearch = v.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       v.arc.toLowerCase().includes(searchQuery.value.toLowerCase())
     const completed = isVolumeCompleted(v.id)
@@ -69,7 +94,7 @@ const filtered = computed(() => {
       ? true
       : filterStatus.value === 'completed' ? completed
       : filterStatus.value === 'in-progress' ? (v.id === 1 && !completed)
-      : !completed
+      : !completed // 'unread'
     return matchSearch && matchFilter
   })
 })
@@ -78,6 +103,7 @@ const inProgressCount = computed(() => {
   return volumes.value.filter(v => !isVolumeCompleted(v.id) && v.id <= 1).length
 })
 
+// Arc color palette — Black Swordsman and Fantasia share crimson intentionally
 const arcColors = {
   'Black Swordsman': '#c10b21',
   'Golden Age': '#d4a017',
@@ -91,7 +117,7 @@ const arcColors = {
   <div class="p-6 min-h-screen bg-[#111114]">
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-white">The Archive</h1>
+      <h1 class="text-2xl font-bold text-white transition-all duration-300" :class="isOpen ? '' : 'pl-6'">The Archive</h1>
       <p class="text-[#5a5a72] text-sm mt-0.5">
         {{ totalVolumes }} total volumes · {{ completedCount }} completed · {{ inProgressCount }} in progress
       </p>
@@ -140,8 +166,8 @@ const arcColors = {
     </div>
 
     <!-- Loading state -->
-    <div v-if="loading" class="grid grid-cols-4 gap-4">
-      <div v-for="i in 8" :key="i" class="bg-[#16161a] rounded-xl animate-pulse">
+    <div v-if="loading" class="grid grid-cols-6 gap-3">
+      <div v-for="i in 12" :key="i" class="bg-[#16161a] rounded-xl animate-pulse">
         <div class="aspect-[2/3] bg-[#23232b] rounded-t-xl"></div>
         <div class="p-3 space-y-2">
           <div class="h-3 bg-[#23232b] rounded w-1/2"></div>
@@ -151,7 +177,7 @@ const arcColors = {
     </div>
 
     <!-- Grid view -->
-    <div v-else-if="viewMode === 'grid'" class="grid grid-cols-4 gap-4">
+    <div v-else-if="viewMode === 'grid'" class="grid grid-cols-6 gap-3">
       <div
         v-for="vol in filtered"
         :key="vol.id"
