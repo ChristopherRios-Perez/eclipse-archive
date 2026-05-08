@@ -1,5 +1,6 @@
 import { reactive, computed, watch } from 'vue'
 
+// Hardcoded based on the final published volume count
 const TOTAL_VOLUMES = 41
 const TOTAL_CHAPTERS = 364
 
@@ -15,6 +16,7 @@ function loadFromStorage() {
 
 const saved = loadFromStorage()
 
+// Module-level state — same pattern as useAuth, one shared instance across the app
 const state = reactive({
   completedVolumes: saved?.completedVolumes ?? [],
   currentVolume: saved?.currentVolume ?? 1,
@@ -25,6 +27,7 @@ const state = reactive({
   lastRead: saved?.lastRead ?? null,
 })
 
+// Auto-persist on any state change — deep watch catches nested array mutations
 watch(state, (val) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
 }, { deep: true })
@@ -33,11 +36,13 @@ export function useProgress() {
   const completedCount = computed(() => state.completedVolumes.length)
   const volumesLeft = computed(() => TOTAL_VOLUMES - completedCount.value)
 
+  // Capped at 100 just in case something goes sideways with the data
   const strugglePercentage = computed(() => {
     const base = (completedCount.value / TOTAL_VOLUMES) * 100
     return Math.min(100, Math.round(base))
   })
 
+  // Arc boundaries sourced from the actual Berserk publication structure
   const currentArc = computed(() => {
     const v = state.currentVolume
     if (v <= 10) return 'Black Swordsman'
@@ -56,11 +61,13 @@ export function useProgress() {
     if (idx === -1) {
       state.completedVolumes.push(volId)
       addActivity(`Completed Volume ${volId} of Berserk`)
+      // Auto-advance current volume so the tracker stays ahead of what's been read
       if (volId >= state.currentVolume) {
         state.currentVolume = Math.min(TOTAL_VOLUMES, volId + 1)
         state.currentChapter = 1
       }
     } else {
+      // Unchecking — just remove it, don't adjust currentVolume backwards
       state.completedVolumes.splice(idx, 1)
     }
     state.lastRead = new Date().toISOString()
@@ -73,17 +80,20 @@ export function useProgress() {
     addActivity(`Updated progress to Volume ${volume}, Chapter ${chapter}`)
   }
 
+  // Prepend new activity and trim to 10 — don't need an infinite log
   function addActivity(text) {
     state.recentActivity.unshift({ text, time: new Date().toISOString() })
     if (state.recentActivity.length > 10) state.recentActivity.pop()
   }
 
   function markApostleEncountered(apostleId) {
+    // Guard against duplicates — set semantics via array
     if (!state.apostlesEncountered.includes(apostleId)) {
       state.apostlesEncountered.push(apostleId)
     }
   }
 
+  // Simple relative time formatter — nothing fancy, just readable labels
   function timeAgo(isoString) {
     if (!isoString) return 'Never'
     const diff = Date.now() - new Date(isoString).getTime()
