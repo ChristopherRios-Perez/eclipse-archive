@@ -19,6 +19,8 @@ const {
   currentArc,
   timeAgo,
   setCurrentProgress,
+  toggleVolume,
+  isVolumeCompleted,
 } = useProgress()
 
 // --- Cover fetching (declared after state is available) ---
@@ -240,12 +242,23 @@ function formatTime(iso) {
                 Last read: {{ timeAgo(state.lastRead) }}
               </p>
 
-              <button
-                @click="router.push('/archive')"
-                class="bg-[#c10b21] hover:bg-[#a00d20] text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors w-full"
-              >
-                Continue Reading
-              </button>
+              <div class="flex gap-2">
+                <button
+                  @click="router.push('/archive')"
+                  class="flex-1 bg-[#c10b21] hover:bg-[#a00d20] text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
+                >
+                  Continue Reading
+                </button>
+                <button
+                  @click="toggleVolume(state.currentVolume)"
+                  class="flex-1 text-sm font-medium py-2 rounded-lg border transition-all duration-150"
+                  :class="isVolumeCompleted(state.currentVolume)
+                    ? 'border-[#c10b21]/40 text-[#c10b21] bg-[#c10b21]/10 hover:bg-[#c10b21]/20'
+                    : 'border-[#3d3d4d] text-[#8888a0] hover:border-[#c10b21]/40 hover:text-white'"
+                >
+                  {{ isVolumeCompleted(state.currentVolume) ? '✓ Completed' : 'Mark Complete' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
