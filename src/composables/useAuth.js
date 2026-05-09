@@ -62,6 +62,9 @@ export function useAuth() {
 
   function register(username, email, password) {
     const accounts = loadAccounts()
+    if (password.length < 8) {
+      return { error: 'Password must be at least 8 characters.' }
+    }
     // Email uniqueness is the only constraint we enforce right now
     if (accounts.find(a => a.email === email)) {
       return { error: 'An account with that email already exists.' }

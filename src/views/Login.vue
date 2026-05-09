@@ -40,8 +40,8 @@ function handleRegister() {
     regError.value = 'Passwords do not match.'
     return
   }
-  if (regPassword.value.length < 6) {
-    regError.value = 'Password must be at least 6 characters.'
+  if (regPassword.value.length < 8) {
+    regError.value = 'Password must be at least 8 characters.'
     return
   }
   const { error } = register(regUsername.value, regEmail.value, regPassword.value)
