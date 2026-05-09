@@ -4,6 +4,7 @@ import Archive from '../views/Archive.vue'
 import Bestiary from '../views/Bestiary.vue'
 import VolumeDetail from '../views/VolumeDetail.vue'
 import ApostleDetail from '../views/ApostleDetail.vue'
+import Statistics from '../views/Statistics.vue'
 
 const routes = [
   { path: '/', component: Dashboard, name: 'dashboard' },
@@ -11,6 +12,7 @@ const routes = [
   { path: '/archive/:id', component: VolumeDetail, name: 'volume-detail' }, // individual volume page
   { path: '/bestiary', component: Bestiary, name: 'bestiary' },
   { path: '/bestiary/:id', component: ApostleDetail, name: 'apostle-detail' }, // individual apostle page
+  { path: '/stats', component: Statistics, name: 'statistics' },
 ]
 
 export default createRouter({
