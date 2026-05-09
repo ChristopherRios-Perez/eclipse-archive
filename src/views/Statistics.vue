@@ -61,7 +61,7 @@ function getArcColor(vol) {
     </div>
 
     <!-- Top stat cards -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-4 gap-4 mb-4">
       <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-5">
         <p class="text-[#5a5a72] text-xs mb-1">Volumes Completed</p>
         <p class="text-white font-bold text-3xl">{{ completedCount }}</p>
@@ -81,6 +81,32 @@ function getArcColor(vol) {
         <p class="text-[#5a5a72] text-xs mb-1">Last Read</p>
         <p class="text-white font-bold text-xl mt-1">{{ timeAgo(state.lastRead) }}</p>
         <p class="text-[#5a5a72] text-xs mt-1">Reading Streak: {{ state.readingStreak }} days</p>
+      </div>
+    </div>
+
+    <!-- Currently reading banner — updates whenever Dashboard progress is changed -->
+    <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-4 mb-6 flex items-center gap-6">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-[#c10b21] rounded-full animate-pulse"></div>
+        <span class="text-[#5a5a72] text-sm">Currently Reading</span>
+      </div>
+      <div class="flex items-center gap-8">
+        <div>
+          <span class="text-[#5a5a72] text-xs block">Volume</span>
+          <span class="text-white font-bold">{{ String(state.currentVolume).padStart(2, '0') }}</span>
+        </div>
+        <div>
+          <span class="text-[#5a5a72] text-xs block">Chapter</span>
+          <span class="text-white font-bold">{{ String(state.currentChapter).padStart(2, '0') }}</span>
+        </div>
+        <div>
+          <span class="text-[#5a5a72] text-xs block">Volumes Left</span>
+          <span class="text-white font-bold">{{ volumesLeft }}</span>
+        </div>
+        <div>
+          <span class="text-[#5a5a72] text-xs block">Last Updated</span>
+          <span class="text-white font-bold">{{ timeAgo(state.lastRead) }}</span>
+        </div>
       </div>
     </div>
 
