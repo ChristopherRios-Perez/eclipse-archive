@@ -2,8 +2,10 @@
 import { computed } from 'vue'
 import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
+import { useBadges } from '../composables/useBadges.js'
 
 const { isOpen } = useSidebar()
+const { badges, unlockedCount } = useBadges()
 const {
   state,
   completedCount,
@@ -227,6 +229,30 @@ function getArcColor(vol) {
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Achievement Badges -->
+    <div class="mt-5 bg-[#16161a] border border-[#2d2d38] rounded-xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-white font-semibold">Achievement Badges</h3>
+        <span class="text-[#5a5a72] text-xs">{{ unlockedCount }} / {{ badges.length }} unlocked</span>
+      </div>
+      <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div
+          v-for="badge in badges"
+          :key="badge.id"
+          class="flex flex-col items-center text-center p-3 rounded-xl border transition-all duration-200"
+          :class="badge.unlocked
+            ? 'bg-[#1c1c22] border-[#c10b21]/40'
+            : 'bg-[#111114] border-[#23232b] opacity-40'"
+        >
+          <span class="text-2xl mb-2">{{ badge.icon }}</span>
+          <p class="text-white text-xs font-semibold leading-tight mb-1">{{ badge.name }}</p>
+          <p class="text-[#5a5a72] text-xs leading-tight">{{ badge.desc }}</p>
+          <span v-if="badge.unlocked" class="mt-2 text-[10px] text-[#c10b21] font-medium">Unlocked</span>
+          <span v-else class="mt-2 text-[10px] text-[#3d3d4d]">Locked</span>
+        </div>
       </div>
     </div>
   </div>
