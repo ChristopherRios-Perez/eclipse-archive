@@ -81,5 +81,21 @@ export function useAuth() {
     persist() // removes the key entirely — cleaner than storing null
   }
 
-  return { state, isLoggedIn, isGuest, username, loginAsGuest, login, register, logout }
+  // Updates the display name both in session and in the stored accounts list
+  function updateUsername(newUsername) {
+    if (!newUsername.trim() || !state.user) return { error: 'Username cannot be empty.' }
+    if (state.user.type === 'user') {
+      const accounts = loadAccounts()
+      const account = accounts.find(a => a.email === state.user.email)
+      if (account) {
+        account.username = newUsername.trim()
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts))
+      }
+    }
+    state.user = { ...state.user, username: newUsername.trim() }
+    persist()
+    return { error: null }
+  }
+
+  return { state, isLoggedIn, isGuest, username, loginAsGuest, login, register, logout, updateUsername }
 }

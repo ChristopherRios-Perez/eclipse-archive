@@ -5,6 +5,7 @@ import Bestiary from '../views/Bestiary.vue'
 import VolumeDetail from '../views/VolumeDetail.vue'
 import ApostleDetail from '../views/ApostleDetail.vue'
 import Statistics from '../views/Statistics.vue'
+import Settings from '../views/Settings.vue'
 
 const routes = [
   { path: '/', component: Dashboard, name: 'dashboard' },
@@ -13,6 +14,7 @@ const routes = [
   { path: '/bestiary', component: Bestiary, name: 'bestiary' },
   { path: '/bestiary/:id', component: ApostleDetail, name: 'apostle-detail' }, // individual apostle page
   { path: '/stats', component: Statistics, name: 'statistics' },
+  { path: '/settings', component: Settings, name: 'settings' },
 ]
 
 export default createRouter({
