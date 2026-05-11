@@ -89,6 +89,24 @@ function goToVolume(id) {
   router.push('/archive/' + id)
 }
 
+// Notification bell — tracks when the user last opened it to compute unread count
+const showNotifications = ref(false)
+const NOTIF_KEY = 'eclipse-archive-last-seen-notif'
+
+const lastSeenNotif = ref(localStorage.getItem(NOTIF_KEY) ?? null)
+
+const unreadCount = computed(() =>
+  state.recentActivity.filter(a => !lastSeenNotif.value || a.time > lastSeenNotif.value).length
+)
+
+function openNotifications() {
+  showNotifications.value = true
+  // Mark all current activity as seen
+  const now = new Date().toISOString()
+  lastSeenNotif.value = now
+  localStorage.setItem(NOTIF_KEY, now)
+}
+
 const showUpdateModal = ref(false)
 const editVolume = ref(state.currentVolume)
 const editChapter = ref(state.currentChapter)
@@ -156,9 +174,50 @@ function formatTime(iso) {
           <!-- Click outside to close -->
           <div v-if="showSearch" class="fixed inset-0 z-40" @click="showSearch = false; searchQuery = ''"></div>
         </div>
-        <button class="w-8 h-8 rounded-lg bg-[#23232b] border border-[#3d3d4d] flex items-center justify-center text-[#8888a0] hover:text-white hover:border-[#c10b21] transition-colors">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
-        </button>
+        <!-- Notification bell -->
+        <div class="relative">
+          <button
+            @click="openNotifications"
+            class="w-8 h-8 rounded-lg bg-[#23232b] border border-[#3d3d4d] flex items-center justify-center text-[#8888a0] hover:text-white hover:border-[#c10b21] transition-colors relative"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+            <!-- Unread badge -->
+            <span
+              v-if="unreadCount > 0"
+              class="absolute -top-1 -right-1 w-4 h-4 bg-[#c10b21] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+            >{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+          </button>
+
+          <!-- Dropdown -->
+          <div
+            v-if="showNotifications"
+            class="absolute right-0 top-10 w-80 bg-[#1c1c22] border border-[#3d3d4d] rounded-xl shadow-2xl z-50 overflow-hidden"
+          >
+            <div class="px-4 py-3 border-b border-[#2d2d38] flex items-center justify-between">
+              <span class="text-white font-medium text-sm">Activity</span>
+              <span class="text-[#5a5a72] text-xs">{{ state.recentActivity.length }} events</span>
+            </div>
+            <div v-if="state.recentActivity.length === 0" class="px-4 py-6 text-center text-[#5a5a72] text-sm">
+              No activity yet.
+            </div>
+            <div v-else class="max-h-72 overflow-y-auto">
+              <div
+                v-for="(item, i) in state.recentActivity"
+                :key="i"
+                class="flex items-start gap-3 px-4 py-3 border-b border-[#23232b] last:border-0"
+              >
+                <div class="w-1.5 h-1.5 bg-[#c10b21] rounded-full mt-1.5 shrink-0"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[#e5e5ef] text-sm">{{ item.text }}</p>
+                  <p class="text-[#5a5a72] text-xs mt-0.5">{{ timeAgo(item.time) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Click outside to close -->
+          <div v-if="showNotifications" class="fixed inset-0 z-40" @click="showNotifications = false"></div>
+        </div>
         <!-- Avatar + dropdown -->
         <div class="relative">
           <button
