@@ -28,12 +28,13 @@ const {
   clearReadingGoal,
 } = useProgress()
 
-// --- Cover fetching (declared after state is available) ---
+// Avatar dropdown + cover art for the currently reading card
 const showUserMenu = ref(false)
 const currentCoverUrl = ref(null)
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
 const coversCache = ref([])
 
+// Paginates through MangaDex covers once and caches them — no need to hit the API again on re-renders
 async function loadCovers() {
   if (coversCache.value.length) return
   try {
@@ -50,6 +51,7 @@ async function loadCovers() {
   } catch {}
 }
 
+// Prefer English locale (Dark Horse / Deluxe editions), fall back to whatever's available
 function resolveVolumeCover(vol) {
   const num = parseInt(vol)
   const match =
@@ -63,16 +65,15 @@ watch(() => state.currentVolume, vol => resolveVolumeCover(vol))
 
 function handleLogout() { showUserMenu.value = false; logout() }
 
-// Chapter progress helpers for the currently reading card
+// How far through the current volume the user is, chapter by chapter
 function getVolumeChaptersCount(volId) { return CHAPTER_COUNTS[volId] ?? 8 }
 function getChapterPct(volId) {
   const done  = (state.completedChapters?.[volId] ?? []).length
   const total = getVolumeChaptersCount(volId)
   return Math.round((done / total) * 100)
 }
-// ---
 
-// Search across all 41 volumes by number or arc name
+// Quick volume search — matches on title, arc name, or padded number ("05", "golden"...)
 const searchQuery = ref('')
 const showSearch = ref(false)
 
@@ -102,7 +103,7 @@ function goToVolume(id) {
   router.push('/archive/' + id)
 }
 
-// Notification bell — tracks when the user last opened it to compute unread count
+// Bell tracks the last time the user opened it so we know what's "new"
 const showNotifications = ref(false)
 const NOTIF_KEY = 'eclipse-archive-last-seen-notif'
 
@@ -114,13 +115,12 @@ const unreadCount = computed(() =>
 
 function openNotifications() {
   showNotifications.value = true
-  // Mark all current activity as seen
   const now = new Date().toISOString()
   lastSeenNotif.value = now
   localStorage.setItem(NOTIF_KEY, now)
 }
 
-// Reading goal modal
+// Reading goal — pre-fills the modal with existing goal values if one is already set
 const showGoalModal = ref(false)
 const goalVolume = ref(41)
 const goalDate = ref('')
@@ -137,7 +137,7 @@ function saveGoal() {
   showGoalModal.value = false
 }
 
-// Computed goal stats
+// Crunch the goal numbers — days left, volumes needed, whether we're on pace
 const goalStats = computed(() => {
   const g = state.readingGoal
   if (!g) return null
