@@ -116,6 +116,10 @@ export function useProgress() {
     if (state.recentActivity.length > 10) state.recentActivity.pop()
   }
 
+  function clearActivity() {
+    state.recentActivity = []
+  }
+
   function setVolumeRating(volId, rating) {
     // Rating of 0 clears it
     if (rating === 0) {
@@ -161,6 +165,7 @@ export function useProgress() {
     toggleVolume,
     setCurrentProgress,
     markApostleEncountered,
+    clearActivity,
     setVolumeRating,
     getVolumeRating,
     addActivity,

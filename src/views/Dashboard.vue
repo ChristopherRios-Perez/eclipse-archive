@@ -21,6 +21,7 @@ const {
   setCurrentProgress,
   toggleVolume,
   isVolumeCompleted,
+  clearActivity,
 } = useProgress()
 
 // --- Cover fetching (declared after state is available) ---
@@ -195,7 +196,13 @@ function formatTime(iso) {
           >
             <div class="px-4 py-3 border-b border-[#2d2d38] flex items-center justify-between">
               <span class="text-white font-medium text-sm">Activity</span>
-              <span class="text-[#5a5a72] text-xs">{{ state.recentActivity.length }} events</span>
+              <button
+                v-if="state.recentActivity.length"
+                @click="clearActivity"
+                class="text-[#5a5a72] hover:text-[#f83244] text-xs transition-colors"
+              >
+                Clear all
+              </button>
             </div>
             <div v-if="state.recentActivity.length === 0" class="px-4 py-6 text-center text-[#5a5a72] text-sm">
               No activity yet.
