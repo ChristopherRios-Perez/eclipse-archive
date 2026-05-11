@@ -5,7 +5,7 @@ import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
 
 const router = useRouter()
-const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNote } = useProgress()
+const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes } = useProgress()
 const { isOpen } = useSidebar() // used to nudge the header title when sidebar collapses
 
 const volumes = ref([]) // populated after the MangaDex cover fetch resolves
@@ -219,8 +219,10 @@ const arcColors = {
           <span class="inline-block text-xs px-2 py-0.5 rounded mb-1.5" :style="{ background: arcColors[vol.arc] + '33', border: '1px solid ' + arcColors[vol.arc] + '66', color: arcColors[vol.arc] }">
             {{ vol.arc }}
           </span>
-          <!-- Note indicator -->
-          <span v-if="getVolumeNote(vol.id)" class="inline-block text-[#5a5a72] text-xs mb-1">📝 Has note</span>
+          <!-- Note count indicator -->
+          <span v-if="getVolumeNotes(vol.id).length" class="inline-block text-[#5a5a72] text-xs mb-1">
+            📝 {{ getVolumeNotes(vol.id).length }} note{{ getVolumeNotes(vol.id).length > 1 ? 's' : '' }}
+          </span>
           <!-- Star rating (only if rated) -->
           <div v-if="getVolumeRating(vol.id)" class="flex items-center gap-0.5">
             <svg
