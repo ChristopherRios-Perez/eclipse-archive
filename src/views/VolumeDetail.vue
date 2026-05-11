@@ -1,58 +1,56 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useProgress } from '../composables/useProgress.js'
+import { useProgress, getVolumeChapters } from '../composables/useProgress.js'
 import { useSettings } from '../composables/useSettings.js'
 
-const route = useRoute()
+const route  = useRoute()
 const router = useRouter()
-const { state, isVolumeCompleted, toggleVolume, setCurrentProgress, setVolumeRating, getVolumeRating, addVolumeNote, clearVolumeNotes, getVolumeNotes, timeAgo } = useProgress()
+const {
+  state, isVolumeCompleted, toggleVolume, setCurrentProgress,
+  isChapterCompleted, toggleChapter, getVolumeChapterProgress,
+  setVolumeRating, getVolumeRating,
+  addVolumeNote, clearVolumeNotes, getVolumeNotes, timeAgo,
+} = useProgress()
 const { settings } = useSettings()
 
-const hoverRating = ref(0)
-const newNote = ref('')
-
-// Ticks every 60s so timeAgo labels re-evaluate automatically
+// --- Reactivity timer for timeAgo labels ---
 const tick = ref(0)
 let tickInterval = null
 onMounted(() => { tickInterval = setInterval(() => tick.value++, 60000) })
 onUnmounted(() => clearInterval(tickInterval))
 
-function postNote() {
-  if (addVolumeNote(volumeId.value, newNote.value)) {
-    newNote.value = ''
-  }
-}
-
+// --- Notes ---
+const newNote = ref('')
+function postNote() { if (addVolumeNote(volumeId.value, newNote.value)) newNote.value = '' }
 const notes = computed(() => getVolumeNotes(volumeId.value))
 
-const justSaved = ref(false)
+// --- Rating ---
+const hoverRating = ref(0)
 
+// --- Volume data ---
+const justSaved  = ref(false)
+const volumeId   = computed(() => parseInt(route.params.id))
+const volume     = ref(null)
+const loading    = ref(true)
 
-const volumeId = computed(() => parseInt(route.params.id))
-const volume = ref(null)
-const loading = ref(true)
+// Chapters for the current volume — reactive because volumeId can change
+const volumeChapters = computed(() => volumeId.value ? getVolumeChapters(volumeId.value) : [])
+const chapterProgress = computed(() => getVolumeChapterProgress(volumeId.value))
 
 function getArc(vol) {
-  if (vol <= 3) return 'Black Swordsman'
+  if (vol <= 3)  return 'Black Swordsman'
   if (vol <= 10) return 'Golden Age'
   if (vol <= 21) return 'Conviction'
   if (vol <= 28) return 'Millennium Falcon'
   return 'Fantasia'
 }
 
-function getChapterRange(vol) {
-  // Approximate chapter ranges per volume
-  const start = (vol - 1) * 8 + 1
-  const end = Math.min(364, vol * 8)
-  return { start, end, count: end - start + 1 }
-}
-
 async function fetchVolume() {
   loading.value = true
   const id = volumeId.value
+  const chapters = getVolumeChapters(id)
 
-  // Try fetching from Jikan API
   let coverUrl = null
   try {
     const resp = await fetch(`https://api.jikan.moe/v4/manga/2/full`)
@@ -62,20 +60,19 @@ async function fetchVolume() {
     }
   } catch {}
 
-  const range = getChapterRange(id)
   volume.value = {
     id,
-    title: `Berserk Vol. ${id}`,
-    volume: id,
-    arc: getArc(id),
+    title:       `Berserk Vol. ${id}`,
+    volume:      id,
+    arc:         getArc(id),
     coverUrl,
-    chapters: range.count,
-    chapterStart: range.start,
-    chapterEnd: range.end,
-    synopsis: `Volume ${id} of Berserk by Kentaro Miura. Part of the ${getArc(id)} arc, following Guts on his dark journey through a world of demons and apostles. This volume contains chapters ${range.start}–${range.end}.`,
-    author: 'Kentaro Miura',
-    publisher: 'Dark Horse Comics',
-    year: 1989 + Math.floor(id / 2),
+    chapterCount: chapters.length,
+    chapterStart: chapters[0],
+    chapterEnd:   chapters[chapters.length - 1],
+    synopsis:    `Volume ${id} of Berserk by Kentaro Miura. Part of the ${getArc(id)} arc, following Guts on his dark journey through a world of demons and apostles. This volume contains chapters ${chapters[0]}–${chapters[chapters.length - 1]}.`,
+    author:      'Kentaro Miura',
+    publisher:   'Dark Horse Comics',
+    year:        1989 + Math.floor(id / 2),
   }
   loading.value = false
 }
@@ -84,10 +81,10 @@ onMounted(fetchVolume)
 
 const arcColors = {
   'Black Swordsman': '#c10b21',
-  'Golden Age': '#d4a017',
-  'Conviction': '#7b3ff2',
-  'Millennium Falcon': '#0f766e',
-  'Fantasia': '#c10b21',
+  'Golden Age':      '#d4a017',
+  'Conviction':      '#7b3ff2',
+  'Millennium Falcon':'#0f766e',
+  'Fantasia':        '#c10b21',
 }
 
 function markCurrentlyReading() {
@@ -255,7 +252,7 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
           <div class="w-px bg-[#2d2d38]"></div>
           <div>
             <p class="text-[#5a5a72] text-xs mb-1">Chapters</p>
-            <p class="text-white font-bold text-xl">{{ volume.chapters }}</p>
+            <p class="text-white font-bold text-xl">{{ volume.chapterCount }}</p>
           </div>
           <div class="w-px bg-[#2d2d38]"></div>
           <div>
@@ -283,22 +280,46 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
           >{{ volume.synopsis }}</p>
         </div>
 
-        <!-- Chapter list -->
+        <!-- Chapter list — fully interactive -->
         <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-5">
-          <h3 class="text-white font-semibold mb-4">Chapters in this Volume</h3>
-          <div class="grid grid-cols-4 gap-2">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-semibold">Chapters in this Volume</h3>
+            <span class="text-[#5a5a72] text-xs">{{ chapterProgress.done }} / {{ chapterProgress.total }} read</span>
+          </div>
+
+          <!-- Chapter progress bar -->
+          <div class="h-1.5 bg-[#23232b] rounded-full overflow-hidden mb-4">
             <div
-              v-for="ch in volume.chapters"
-              :key="ch"
-              class="bg-[#23232b] hover:bg-[#2d2d38] rounded-lg p-3 text-center cursor-pointer transition-colors"
-              :class="isVolumeCompleted(volumeId) ? 'border border-[#c10b21]/30' : 'border border-transparent'"
+              class="h-full bg-[#c10b21] rounded-full transition-all duration-500"
+              :style="{ width: chapterProgress.pct + '%' }"
+            ></div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2">
+            <button
+              v-for="chNum in volumeChapters"
+              :key="chNum"
+              @click="toggleChapter(volumeId, chNum)"
+              class="rounded-lg p-3 text-center transition-all duration-150 border group"
+              :class="isChapterCompleted(volumeId, chNum)
+                ? 'bg-[#c10b21]/15 border-[#c10b21]/50 hover:bg-[#c10b21]/25'
+                : 'bg-[#23232b] border-transparent hover:bg-[#2d2d38] hover:border-[#3d3d4d]'"
             >
-              <p class="text-[#8888a0] text-xs mb-0.5">Chapter</p>
-              <p class="text-white font-semibold text-sm">{{ String(volume.chapterStart + ch - 1).padStart(3, '0') }}</p>
-              <div v-if="isVolumeCompleted(volumeId)" class="mt-1">
-                <svg class="w-3 h-3 text-[#c10b21] mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <p class="text-[#5a5a72] text-xs mb-0.5">Chapter</p>
+              <p
+                class="font-semibold text-sm"
+                :class="isChapterCompleted(volumeId, chNum) ? 'text-[#c10b21]' : 'text-white'"
+              >{{ String(chNum).padStart(3, '0') }}</p>
+              <div class="mt-1 h-3 flex items-center justify-center">
+                <svg
+                  v-if="isChapterCompleted(volumeId, chNum)"
+                  class="w-3 h-3 text-[#c10b21]"
+                  fill="currentColor" viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>

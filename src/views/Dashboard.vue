@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useProgress } from '../composables/useProgress.js'
+import { useProgress, getVolumeChapters, CHAPTER_COUNTS } from '../composables/useProgress.js'
 import { useAuth } from '../composables/useAuth.js'
 import { useSidebar } from '../composables/useSidebar.js'
 import { useBadges } from '../composables/useBadges.js'
@@ -62,6 +62,14 @@ onMounted(async () => { await loadCovers(); resolveVolumeCover(state.currentVolu
 watch(() => state.currentVolume, vol => resolveVolumeCover(vol))
 
 function handleLogout() { showUserMenu.value = false; logout() }
+
+// Chapter progress helpers for the currently reading card
+function getVolumeChaptersCount(volId) { return CHAPTER_COUNTS[volId] ?? 8 }
+function getChapterPct(volId) {
+  const done  = (state.completedChapters?.[volId] ?? []).length
+  const total = getVolumeChaptersCount(volId)
+  return Math.round((done / total) * 100)
+}
 // ---
 
 // Search across all 41 volumes by number or arc name
@@ -385,11 +393,11 @@ function formatTime(iso) {
 
               <div class="mb-1">
                 <div class="flex justify-between text-xs text-[#5a5a72] mb-1">
-                  <span>Volume Progress</span>
-                  <span>{{ Math.round((completedCount / totalVolumes) * 100) }}%</span>
+                  <span>Chapter Progress</span>
+                  <span>{{ (state.completedChapters[state.currentVolume] ?? []).length }} / {{ (state.completedChapters[state.currentVolume]?.length || 0) > 0 || true ? getVolumeChaptersCount(state.currentVolume) : 8 }} chapters</span>
                 </div>
                 <div class="h-1.5 bg-[#23232b] rounded-full overflow-hidden">
-                  <div class="h-full bg-[#c10b21] rounded-full" :style="{ width: Math.round((completedCount / totalVolumes) * 100) + '%' }"></div>
+                  <div class="h-full bg-[#c10b21] rounded-full" :style="{ width: getChapterPct(state.currentVolume) + '%' }"></div>
                 </div>
               </div>
 
