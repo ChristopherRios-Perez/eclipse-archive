@@ -4,11 +4,13 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth.js'
 import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
+import { useSettings } from '../composables/useSettings.js'
 
 const router = useRouter()
 const { isOpen } = useSidebar()
 const { state: authState, isGuest, username, logout, updateUsername } = useAuth()
 const { state: progressState, completedCount, strugglePercentage } = useProgress()
+const { settings, toggleSpoilerBlur } = useSettings()
 
 // Username editing
 const editingUsername = ref(false)
@@ -174,6 +176,28 @@ function handleLogout() {
 
       <!-- Right column -->
       <div class="space-y-5">
+
+        <!-- Preferences -->
+        <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-6">
+          <h3 class="text-white font-semibold mb-4">Preferences</h3>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Spoiler Blur</p>
+              <p class="text-[#5a5a72] text-xs mt-0.5">Blur covers and synopses of unread volumes</p>
+            </div>
+            <!-- Toggle switch -->
+            <button
+              @click="toggleSpoilerBlur"
+              class="relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+              :class="settings.spoilerBlur ? 'bg-[#c10b21]' : 'bg-[#3d3d4d]'"
+            >
+              <span
+                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
+                :class="settings.spoilerBlur ? 'translate-x-6' : 'translate-x-0'"
+              ></span>
+            </button>
+          </div>
+        </div>
 
         <!-- Account actions -->
         <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-6">

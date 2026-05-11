@@ -2,10 +2,12 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProgress } from '../composables/useProgress.js'
+import { useSettings } from '../composables/useSettings.js'
 
 const route = useRoute()
 const router = useRouter()
 const { state, isVolumeCompleted, toggleVolume, setCurrentProgress, setVolumeRating, getVolumeRating, addVolumeNote, clearVolumeNotes, getVolumeNotes, timeAgo } = useProgress()
+const { settings } = useSettings()
 
 const hoverRating = ref(0)
 const newNote = ref('')
@@ -271,8 +273,14 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
 
         <!-- Synopsis -->
         <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-5 mb-5">
-          <h3 class="text-white font-semibold mb-3">Synopsis</h3>
-          <p class="text-[#8888a0] text-sm leading-relaxed">{{ volume.synopsis }}</p>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-semibold">Synopsis</h3>
+            <span v-if="settings.spoilerBlur && !isVolumeCompleted(volumeId)" class="text-[#5a5a72] text-xs">🔒 Spoiler hidden</span>
+          </div>
+          <p
+            class="text-[#8888a0] text-sm leading-relaxed transition-all duration-300 select-none"
+            :class="settings.spoilerBlur && !isVolumeCompleted(volumeId) ? 'blur-sm' : ''"
+          >{{ volume.synopsis }}</p>
         </div>
 
         <!-- Chapter list -->

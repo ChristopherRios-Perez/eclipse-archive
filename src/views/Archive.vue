@@ -3,9 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
+import { useSettings } from '../composables/useSettings.js'
 
 const router = useRouter()
 const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes, toggleWishlist, isWishlisted, state } = useProgress()
+const { settings } = useSettings()
 const { isOpen } = useSidebar() // used to nudge the header title when sidebar collapses
 
 const volumes = ref([]) // populated after the MangaDex cover fetch resolves
@@ -193,6 +195,7 @@ const arcColors = {
             :src="vol.coverUrl"
             :alt="vol.title"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            :class="settings.spoilerBlur && !isVolumeCompleted(vol.id) ? 'blur-sm scale-105' : ''"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
             <div class="text-center">
@@ -201,6 +204,13 @@ const arcColors = {
             </div>
           </div>
           <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d0f]/80 via-transparent to-transparent"></div>
+          <!-- Spoiler overlay -->
+          <div
+            v-if="settings.spoilerBlur && !isVolumeCompleted(vol.id)"
+            class="absolute inset-0 flex items-center justify-center"
+          >
+            <span class="bg-black/60 text-white text-xs px-2 py-1 rounded-lg font-medium">Spoiler</span>
+          </div>
 
           <!-- Wishlist bookmark -->
           <button
@@ -276,7 +286,7 @@ const arcColors = {
         @click="router.push('/archive/' + vol.id)"
       >
         <div class="w-10 h-14 bg-[#23232b] rounded overflow-hidden shrink-0">
-          <img v-if="vol.coverUrl" :src="vol.coverUrl" class="w-full h-full object-cover" />
+          <img v-if="vol.coverUrl" :src="vol.coverUrl" class="w-full h-full object-cover" :class="settings.spoilerBlur && !isVolumeCompleted(vol.id) ? 'blur-sm' : ''" />
           <div v-else class="w-full h-full flex items-center justify-center text-[#c10b21] font-black text-lg">B</div>
         </div>
         <div class="flex-1 min-w-0">
