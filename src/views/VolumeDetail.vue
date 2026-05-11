@@ -139,7 +139,7 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
         </div>
 
         <!-- Action buttons -->
-        <div class="mt-4 space-y-2">
+        <div class="mt-4 space-y-3">
           <button
             @click="toggleVolume(volumeId)"
             class="w-56 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
