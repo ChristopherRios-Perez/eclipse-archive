@@ -183,17 +183,17 @@ function getArcColor(vol) {
             </div>
             <div class="flex-1 h-px bg-[#2d2d38]"></div>
             <div class="text-center">
-              <p class="text-white font-bold text-3xl">12</p>
+              <p class="text-white font-bold text-3xl">16</p>
               <p class="text-[#5a5a72] text-xs mt-0.5">Total Known</p>
             </div>
           </div>
           <div class="h-2 bg-[#23232b] rounded-full overflow-hidden">
             <div
               class="h-full bg-[#c10b21] rounded-full transition-all duration-700"
-              :style="{ width: Math.round((state.apostlesEncountered.length / 12) * 100) + '%' }"
+              :style="{ width: Math.round((state.apostlesEncountered.length / 16) * 100) + '%' }"
             ></div>
           </div>
-          <p class="text-[#5a5a72] text-xs mt-2 text-right">{{ Math.round((state.apostlesEncountered.length / 12) * 100) }}% catalogued</p>
+          <p class="text-[#5a5a72] text-xs mt-2 text-right">{{ Math.round((state.apostlesEncountered.length / 16) * 100) }}% catalogued</p>
         </div>
 
         <!-- Volumes remaining breakdown -->
