@@ -13,7 +13,7 @@ onMounted(fetchAllCovers)
 const searchQuery = ref('')
 const activeFilter = ref('All')
 
-const filters = ['All', 'Golden Age', 'Conviction', 'Millennium Falcon', 'Fantasia']
+const filters = ['All', 'Black Swordsman', 'Golden Age', 'Conviction', 'Millennium Falcon', 'Fantasia']
 
 // coverVolume = which manga volume cover best represents this apostle
 const apostles = [
@@ -27,8 +27,12 @@ const apostles = [
   { id: 8,  name: 'Ganishka',                    arc: 'Fantasia',          status: 'Transcended', title: 'Emperor',           firstAppearance: 'Volume 30',           coverVolume: 31, description: 'The most powerful apostle in the series, the Emperor of Kushan who transforms into a colossal fog giant.' },
   { id: 9,  name: 'Locus',                       arc: 'Millennium Falcon', status: 'Alive',       title: 'Moonlight Knight',  firstAppearance: 'Volume 28',           coverVolume: 28, description: 'A chivalric apostle who serves Griffith. Known as the Moonlight Knight for his lance mastery.' },
   { id: 10, name: 'Irvine',                      arc: 'Millennium Falcon', status: 'Alive',       title: 'Archer Apostle',    firstAppearance: 'Volume 28',           coverVolume: 29, description: 'A wolf-like apostle with extraordinary archery skills. One of the five falcon-wing generals under Griffith.' },
-  { id: 11, name: 'The Baron',                   arc: 'Black Swordsman',   status: 'Deceased',    title: 'Snake Baron',       firstAppearance: 'Volume 1',            coverVolume: 1,  description: 'One of the earliest apostles faced by Guts in his journey of revenge. Ruler of a small domain with a snake-like apostle form.' },
-  { id: 12, name: 'Female Apostle',              arc: 'Golden Age',        status: 'Deceased',    title: 'Unnamed Apostle',   firstAppearance: 'Volume 3',            coverVolume: 3,  description: 'A female apostle encountered during Guts\'s early travels. One of the first to recognise the mark of sacrifice on Guts.' },
+  { id: 11, name: 'The Baron',                   arc: 'Black Swordsman',   status: 'Deceased',    title: 'Snake Baron',           firstAppearance: 'Volume 1',  coverVolume: 1,  description: 'One of the earliest apostles faced by Guts in his journey of revenge. Ruler of a small domain with a snake-like apostle form.' },
+  { id: 12, name: 'Female Apostle',              arc: 'Golden Age',        status: 'Deceased',    title: 'Unnamed Apostle',       firstAppearance: 'Volume 3',  coverVolume: 3,  description: 'A female apostle encountered during Guts\'s early travels. One of the first to recognise the mark of sacrifice on Guts.' },
+  { id: 13, name: 'Rakshas',                     arc: 'Fantasia',          status: 'Alive',       title: 'Shadow Apostle',        firstAppearance: 'Volume 29', coverVolume: 30, description: 'A mysterious and unsettling apostle who serves in Griffith\'s reborn Band of the Falcon. His apostle form is a shapeshifting mass of shadowy tendrils. Despite outwardly serving Griffith, he secretly covets Griffith\'s face and plots against him.' },
+  { id: 14, name: 'The Sea God',                 arc: 'Fantasia',          status: 'Deceased',    title: 'Ancient Leviathan',     firstAppearance: 'Volume 34', coverVolume: 35, description: 'An ancient, colossal apostle who slumbered beneath the sea for centuries, worshipped by an island village. Guts and his companions must defeat it during their voyage to Skellig. One of the largest apostles ever depicted in the series.' },
+  { id: 15, name: 'Bonebeard',                   arc: 'Black Swordsman',   status: 'Deceased',    title: 'Pirate Apostle',        firstAppearance: 'Volume 3',  coverVolume: 4,  description: 'A pirate captain who became an apostle and terrorised coastal villages. One of the apostles encountered by Guts during his early travels as the Black Swordsman before the main story begins.' },
+  { id: 16, name: 'The Slug Baron',              arc: 'Black Swordsman',   status: 'Deceased',    title: 'Apostle Lord',          firstAppearance: 'Volume 1',  coverVolume: 2,  description: 'A grotesque slug-like apostle who ruled over a domain of miserable subjects. Encountered by Guts in the early Black Swordsman arc, his defeat gives Guts a crucial lead on the location of a beherit.' },
 ]
 
 const statusColors = {
