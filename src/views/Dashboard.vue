@@ -22,6 +22,8 @@ const {
   toggleVolume,
   isVolumeCompleted,
   clearActivity,
+  setReadingGoal,
+  clearReadingGoal,
 } = useProgress()
 
 // --- Cover fetching (declared after state is available) ---
@@ -107,6 +109,36 @@ function openNotifications() {
   lastSeenNotif.value = now
   localStorage.setItem(NOTIF_KEY, now)
 }
+
+// Reading goal modal
+const showGoalModal = ref(false)
+const goalVolume = ref(41)
+const goalDate = ref('')
+
+function openGoalModal() {
+  goalVolume.value = state.readingGoal?.targetVolume ?? 41
+  goalDate.value = state.readingGoal?.targetDate ?? ''
+  showGoalModal.value = true
+}
+
+function saveGoal() {
+  if (!goalDate.value) return
+  setReadingGoal(Number(goalVolume.value), goalDate.value)
+  showGoalModal.value = false
+}
+
+// Computed goal stats
+const goalStats = computed(() => {
+  const g = state.readingGoal
+  if (!g) return null
+  const today = new Date(); today.setHours(0,0,0,0)
+  const target = new Date(g.targetDate); target.setHours(0,0,0,0)
+  const daysLeft = Math.ceil((target - today) / 86400000)
+  const volsNeeded = Math.max(0, g.targetVolume - completedCount.value)
+  const pct = Math.min(100, Math.round((completedCount.value / g.targetVolume) * 100))
+  const onTrack = daysLeft > 0 && (volsNeeded === 0 || daysLeft >= volsNeeded)
+  return { daysLeft, volsNeeded, pct, onTrack, targetVolume: g.targetVolume, targetDate: g.targetDate, done: volsNeeded === 0 }
+})
 
 const showUpdateModal = ref(false)
 const editVolume = ref(state.currentVolume)
@@ -410,6 +442,46 @@ function formatTime(iso) {
       <!-- Right column: Quick Stats + Progress Cards -->
       <div class="space-y-5">
 
+        <!-- Reading Goal card -->
+        <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-semibold text-sm">Reading Goal</h3>
+            <div class="flex items-center gap-2">
+              <button @click="openGoalModal" class="text-[#5a5a72] hover:text-white text-xs transition-colors">
+                {{ state.readingGoal ? 'Edit' : 'Set Goal' }}
+              </button>
+              <button v-if="state.readingGoal" @click="clearReadingGoal" class="text-[#5a5a72] hover:text-[#f83244] text-xs transition-colors">Clear</button>
+            </div>
+          </div>
+
+          <!-- No goal set -->
+          <div v-if="!goalStats" class="text-center py-3">
+            <p class="text-[#5a5a72] text-xs mb-2">No goal set yet</p>
+            <button @click="openGoalModal" class="text-xs px-3 py-1.5 rounded-lg bg-[#c10b21] hover:bg-[#a00d20] text-white transition-colors">Set a Goal</button>
+          </div>
+
+          <!-- Goal active -->
+          <div v-else>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[#5a5a72] text-xs">Vol {{ completedCount }} / {{ goalStats.targetVolume }}</span>
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-full"
+                :class="goalStats.done ? 'bg-green-500/20 text-green-400' : goalStats.daysLeft < 0 ? 'bg-[#f83244]/20 text-[#f83244]' : goalStats.onTrack ? 'bg-[#c10b21]/20 text-[#c10b21]' : 'bg-yellow-500/20 text-yellow-400'"
+              >
+                {{ goalStats.done ? '✓ Goal reached!' : goalStats.daysLeft < 0 ? 'Overdue' : goalStats.onTrack ? 'On track' : 'Behind' }}
+              </span>
+            </div>
+            <div class="h-2 bg-[#23232b] rounded-full overflow-hidden mb-2">
+              <div class="h-full bg-[#c10b21] rounded-full transition-all duration-700" :style="{ width: goalStats.pct + '%' }"></div>
+            </div>
+            <div class="flex justify-between text-xs text-[#5a5a72]">
+              <span>{{ goalStats.volsNeeded }} volumes left</span>
+              <span>{{ goalStats.daysLeft > 0 ? goalStats.daysLeft + ' days left' : goalStats.daysLeft === 0 ? 'Due today' : Math.abs(goalStats.daysLeft) + ' days overdue' }}</span>
+            </div>
+            <p class="text-[#3d3d4d] text-xs mt-1.5 text-right">Target: {{ new Date(goalStats.targetDate).toLocaleDateString() }}</p>
+          </div>
+        </div>
+
         <!-- Quick Stats panel -->
         <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-5">
           <div class="flex items-center justify-between mb-4">
@@ -506,6 +578,35 @@ function formatTime(iso) {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reading Goal Modal -->
+    <div v-if="showGoalModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" @click.self="showGoalModal = false">
+      <div class="bg-[#1c1c22] border border-[#3d3d4d] rounded-2xl p-6 w-96">
+        <h3 class="text-white font-bold text-lg mb-5">Set Reading Goal</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-[#8888a0] text-sm block mb-1.5">Target Volume (1–41)</label>
+            <input
+              v-model.number="goalVolume"
+              type="number" min="1" max="41"
+              class="w-full bg-[#23232b] border border-[#3d3d4d] rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#c10b21]"
+            />
+          </div>
+          <div>
+            <label class="text-[#8888a0] text-sm block mb-1.5">Target Date</label>
+            <input
+              v-model="goalDate"
+              type="date"
+              class="w-full bg-[#23232b] border border-[#3d3d4d] rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#c10b21]"
+            />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button @click="showGoalModal = false" class="flex-1 bg-[#2d2d38] hover:bg-[#3d3d4d] text-[#8888a0] py-2.5 rounded-lg text-sm transition-colors">Cancel</button>
+          <button @click="saveGoal" :disabled="!goalDate" class="flex-1 bg-[#c10b21] hover:bg-[#a00d20] disabled:opacity-40 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">Save Goal</button>
         </div>
       </div>
     </div>

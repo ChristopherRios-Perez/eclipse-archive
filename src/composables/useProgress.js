@@ -28,6 +28,7 @@ const state = reactive({
   volumeRatings: saved?.volumeRatings ?? {}, // volId → 1-5 stars
   volumeNotes: saved?.volumeNotes ?? {},    // volId → [{text, time}]
   wishlist: saved?.wishlist ?? [],           // array of volume IDs
+  readingGoal: saved?.readingGoal ?? null,  // { targetVolume, targetDate, createdAt }
 })
 
 // Auto-persist on any state change — deep watch catches nested array mutations
@@ -122,6 +123,14 @@ export function useProgress() {
     state.recentActivity = []
   }
 
+  function setReadingGoal(targetVolume, targetDate) {
+    state.readingGoal = { targetVolume, targetDate, createdAt: new Date().toISOString() }
+  }
+
+  function clearReadingGoal() {
+    state.readingGoal = null
+  }
+
   function toggleWishlist(volId) {
     const idx = state.wishlist.indexOf(volId)
     if (idx === -1) state.wishlist.push(volId)
@@ -195,6 +204,8 @@ export function useProgress() {
     isVolumeCompleted,
     toggleVolume,
     setCurrentProgress,
+    setReadingGoal,
+    clearReadingGoal,
     toggleWishlist,
     isWishlisted,
     markApostleEncountered,
