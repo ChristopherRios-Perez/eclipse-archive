@@ -59,6 +59,36 @@ watch(() => state.currentVolume, vol => resolveVolumeCover(vol))
 function handleLogout() { showUserMenu.value = false; logout() }
 // ---
 
+// Search across all 41 volumes by number or arc name
+const searchQuery = ref('')
+const showSearch = ref(false)
+
+const allVolumes = Array.from({ length: 41 }, (_, i) => {
+  const vol = i + 1
+  let arc = 'Fantasia'
+  if (vol <= 3)  arc = 'Black Swordsman'
+  else if (vol <= 10) arc = 'Golden Age'
+  else if (vol <= 21) arc = 'Conviction'
+  else if (vol <= 28) arc = 'Millennium Falcon'
+  return { id: vol, title: `Berserk Vol. ${vol}`, arc }
+})
+
+const searchResults = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return []
+  return allVolumes.filter(v =>
+    v.title.toLowerCase().includes(q) ||
+    v.arc.toLowerCase().includes(q) ||
+    String(v.id).padStart(2, '0').includes(q)
+  ).slice(0, 6)
+})
+
+function goToVolume(id) {
+  searchQuery.value = ''
+  showSearch.value = false
+  router.push('/archive/' + id)
+}
+
 const showUpdateModal = ref(false)
 const editVolume = ref(state.currentVolume)
 const editChapter = ref(state.currentChapter)
@@ -92,13 +122,39 @@ function formatTime(iso) {
       <div class="flex items-center gap-3">
         <div class="relative">
           <input
+            v-model="searchQuery"
+            @focus="showSearch = true"
             type="text"
-            placeholder="Search manga..."
-            class="bg-[#23232b] border border-[#3d3d4d] rounded-lg px-4 py-2 text-sm text-[#8888a0] placeholder-[#5a5a72] w-52 focus:outline-none focus:border-[#c10b21]"
+            placeholder="Search volumes or arcs..."
+            class="bg-[#23232b] border border-[#3d3d4d] rounded-lg px-4 py-2 text-sm text-[#8888a0] placeholder-[#5a5a72] w-64 focus:outline-none focus:border-[#c10b21] transition-colors"
           />
           <svg class="w-4 h-4 absolute right-3 top-2.5 text-[#5a5a72]" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
           </svg>
+
+          <!-- Search results dropdown -->
+          <div
+            v-if="showSearch && searchResults.length"
+            class="absolute top-10 right-0 w-72 bg-[#1c1c22] border border-[#3d3d4d] rounded-xl shadow-2xl z-50 overflow-hidden"
+          >
+            <button
+              v-for="vol in searchResults"
+              :key="vol.id"
+              @mousedown.prevent="goToVolume(vol.id)"
+              class="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#2d2d38] transition-colors text-left"
+            >
+              <div>
+                <p class="text-white text-sm font-medium">{{ vol.title }}</p>
+                <p class="text-[#5a5a72] text-xs">{{ vol.arc }}</p>
+              </div>
+              <svg class="w-3.5 h-3.5 text-[#5a5a72]" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Click outside to close -->
+          <div v-if="showSearch" class="fixed inset-0 z-40" @click="showSearch = false; searchQuery = ''"></div>
         </div>
         <button class="w-8 h-8 rounded-lg bg-[#23232b] border border-[#3d3d4d] flex items-center justify-center text-[#8888a0] hover:text-white hover:border-[#c10b21] transition-colors">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
