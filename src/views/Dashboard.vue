@@ -3,9 +3,11 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useProgress } from '../composables/useProgress.js'
 import { useAuth } from '../composables/useAuth.js'
 import { useSidebar } from '../composables/useSidebar.js'
+import { useBadges } from '../composables/useBadges.js'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const { unlockedCount } = useBadges()
 const { username, isGuest, logout } = useAuth()
 const { isOpen } = useSidebar()
 
@@ -500,6 +502,10 @@ function formatTime(iso) {
             <div class="flex items-center justify-between">
               <span class="text-[#8888a0] text-sm">Current Arc</span>
               <span class="text-[#c10b21] font-semibold text-sm">{{ currentArc }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#8888a0] text-sm">Badges</span>
+              <span class="text-white font-semibold">{{ unlockedCount }} / 12</span>
             </div>
           </div>
         </div>
