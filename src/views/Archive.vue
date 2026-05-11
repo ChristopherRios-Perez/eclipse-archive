@@ -5,7 +5,7 @@ import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
 
 const router = useRouter()
-const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes } = useProgress()
+const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes, toggleWishlist, isWishlisted, state } = useProgress()
 const { isOpen } = useSidebar() // used to nudge the header title when sidebar collapses
 
 const volumes = ref([]) // populated after the MangaDex cover fetch resolves
@@ -93,6 +93,7 @@ const filtered = computed(() => {
     const matchFilter = filterStatus.value === 'all'
       ? true
       : filterStatus.value === 'completed' ? completed
+      : filterStatus.value === 'wishlist' ? isWishlisted(v.id)
       : filterStatus.value === 'in-progress' ? (v.id === 1 && !completed)
       : !completed // 'unread'
     return matchSearch && matchFilter
@@ -119,7 +120,7 @@ const arcColors = {
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-white transition-all duration-300" :class="isOpen ? '' : 'pl-6'">The Archive</h1>
       <p class="text-[#5a5a72] text-sm mt-0.5">
-        {{ totalVolumes }} total volumes · {{ completedCount }} completed · {{ inProgressCount }} in progress
+        {{ totalVolumes }} total volumes · {{ completedCount }} completed · {{ inProgressCount }} in progress · {{ state.wishlist.length }} wishlisted
       </p>
     </div>
 
@@ -144,6 +145,7 @@ const arcColors = {
         <option value="all">All Volumes</option>
         <option value="completed">Completed</option>
         <option value="unread">Unread</option>
+        <option value="wishlist">Wishlist</option>
       </select>
 
       <!-- Grid/List toggle -->
@@ -199,6 +201,20 @@ const arcColors = {
             </div>
           </div>
           <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d0f]/80 via-transparent to-transparent"></div>
+
+          <!-- Wishlist bookmark -->
+          <button
+            @click.stop="toggleWishlist(vol.id)"
+            class="absolute top-2 left-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150"
+            :class="isWishlisted(vol.id)
+              ? 'bg-[#d4a017] text-white'
+              : 'bg-black/40 text-white/60 hover:bg-black/60 hover:text-white'"
+            title="Toggle wishlist"
+          >
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+            </svg>
+          </button>
 
           <!-- Status badge -->
           <div
@@ -272,6 +288,17 @@ const arcColors = {
         </div>
         <div class="flex items-center gap-3">
           <span v-if="isVolumeCompleted(vol.id)" class="text-[#c10b21] text-xs font-medium">✓ Read</span>
+          <!-- Wishlist bookmark -->
+          <button
+            @click.stop="toggleWishlist(vol.id)"
+            class="w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150"
+            :class="isWishlisted(vol.id) ? 'bg-[#d4a017] text-white' : 'bg-[#23232b] border border-[#3d3d4d] text-[#5a5a72] hover:text-white hover:border-[#d4a017]'"
+            title="Toggle wishlist"
+          >
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+            </svg>
+          </button>
           <button
             @click.stop="toggleVolume(vol.id)"
             class="text-xs px-3 py-1.5 rounded-lg border transition-colors"

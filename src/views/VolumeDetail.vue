@@ -139,7 +139,7 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
         </div>
 
         <!-- Action buttons -->
-        <div class="mt-4 space-y-3">
+        <div class="mt-4 flex flex-col gap-3">
           <button
             @click="toggleVolume(volumeId)"
             class="w-56 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
@@ -149,6 +149,7 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
           >
             {{ isVolumeCompleted(volumeId) ? '✓ Mark as Unread' : 'Mark as Complete' }}
           </button>
+          <div class="w-56 border-t border-[#2d2d38]"></div>
           <button
             @click="markCurrentlyReading"
             class="w-56 py-2.5 rounded-xl text-sm font-medium border transition-colors"
