@@ -209,18 +209,16 @@ const arcColors = {
             Read
           </div>
 
-          <!-- Arc tag -->
-          <div class="absolute bottom-2 left-2">
-            <span class="text-white text-xs px-2 py-0.5 rounded" :style="{ background: arcColors[vol.arc] + '33', border: '1px solid ' + arcColors[vol.arc] + '66', color: arcColors[vol.arc] }">
-              {{ vol.arc }}
-            </span>
-          </div>
         </div>
 
         <!-- Info -->
         <div class="p-3">
           <p class="text-[#5a5a72] text-xs mb-0.5">Volume</p>
-          <p class="text-white font-semibold text-sm mb-1">{{ String(vol.volume).padStart(2, '0') }}</p>
+          <p class="text-white font-semibold text-sm mb-1.5">{{ String(vol.volume).padStart(2, '0') }}</p>
+          <!-- Arc badge -->
+          <span class="inline-block text-xs px-2 py-0.5 rounded mb-1.5" :style="{ background: arcColors[vol.arc] + '33', border: '1px solid ' + arcColors[vol.arc] + '66', color: arcColors[vol.arc] }">
+            {{ vol.arc }}
+          </span>
           <!-- Star rating (only if rated) -->
           <div v-if="getVolumeRating(vol.id)" class="flex items-center gap-0.5">
             <svg
