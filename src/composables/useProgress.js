@@ -42,13 +42,13 @@ export function useProgress() {
     return Math.min(100, Math.round(base))
   })
 
-  // Arc boundaries sourced from the actual Berserk publication structure
+  // Arc boundaries — matches the actual Berserk publication structure
   const currentArc = computed(() => {
     const v = state.currentVolume
-    if (v <= 10) return 'Black Swordsman'
-    if (v <= 21) return 'Golden Age'
-    if (v <= 28) return 'Conviction'
-    if (v <= 34) return 'Millennium Falcon'
+    if (v <= 3)  return 'Black Swordsman'
+    if (v <= 10) return 'Golden Age'
+    if (v <= 21) return 'Conviction'
+    if (v <= 28) return 'Millennium Falcon'
     return 'Fantasia'
   })
 

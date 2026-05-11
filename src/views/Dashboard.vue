@@ -365,21 +365,21 @@ function formatTime(iso) {
           <h3 class="text-white font-semibold text-sm mb-3">Arc Progress</h3>
           <div class="space-y-2.5">
             <div v-for="arc in [
-              { name: 'Black Swordsman', end: 10 },
-              { name: 'Golden Age', end: 21 },
-              { name: 'Conviction', end: 28 },
-              { name: 'Millennium Falcon', end: 34 },
-              { name: 'Fantasia', end: 41 },
+              { name: 'Black Swordsman', start: 1,  end: 3  },
+              { name: 'Golden Age',      start: 4,  end: 10 },
+              { name: 'Conviction',      start: 11, end: 21 },
+              { name: 'Millennium Falcon', start: 22, end: 28 },
+              { name: 'Fantasia',        start: 29, end: 41 },
             ]" :key="arc.name">
               <div class="flex justify-between text-xs mb-1">
                 <span :class="currentArc === arc.name ? 'text-[#c10b21] font-medium' : 'text-[#8888a0]'">{{ arc.name }}</span>
-                <span class="text-[#5a5a72]">Vol {{ arc.end <= 10 ? '1' : arc.end <= 21 ? '11' : arc.end <= 28 ? '22' : arc.end <= 34 ? '29' : '35' }}-{{ arc.end }}</span>
+                <span class="text-[#5a5a72]">Vol {{ arc.start }}-{{ arc.end }}</span>
               </div>
               <div class="h-1 bg-[#23232b] rounded-full overflow-hidden">
                 <div
                   class="h-full rounded-full transition-all duration-500"
                   :class="currentArc === arc.name ? 'bg-[#c10b21]' : completedCount >= arc.end ? 'bg-[#5a5a72]' : 'bg-[#2d2d38]'"
-                  :style="{ width: Math.min(100, Math.max(0, (completedCount / arc.end) * 100)) + '%' }"
+                  :style="{ width: Math.min(100, Math.max(0, ((state.completedVolumes.filter(v => v >= arc.start && v <= arc.end).length) / (arc.end - arc.start + 1)) * 100)) + '%' }"
                 ></div>
               </div>
             </div>
