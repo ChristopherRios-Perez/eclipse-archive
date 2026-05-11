@@ -5,9 +5,21 @@ import { useProgress } from '../composables/useProgress.js'
 
 const route = useRoute()
 const router = useRouter()
-const { state, isVolumeCompleted, toggleVolume, setCurrentProgress, setVolumeRating, getVolumeRating } = useProgress()
+const { state, isVolumeCompleted, toggleVolume, setCurrentProgress, setVolumeRating, getVolumeRating, setVolumeNote, getVolumeNote } = useProgress()
 
 const hoverRating = ref(0)
+const noteText = ref('')
+const noteSaved = ref(false)
+
+function loadNote() {
+  noteText.value = getVolumeNote(volumeId.value)
+}
+
+function saveNote() {
+  setVolumeNote(volumeId.value, noteText.value)
+  noteSaved.value = true
+  setTimeout(() => { noteSaved.value = false }, 2000)
+}
 
 const justSaved = ref(false)
 
@@ -61,6 +73,7 @@ async function fetchVolume() {
     year: 1989 + Math.floor(id / 2),
   }
   loading.value = false
+  loadNote()
 }
 
 onMounted(fetchVolume)
@@ -145,6 +158,28 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
           >
             {{ justSaved ? '✓ Saved!' : isCurrentVolume ? '★ Currently Reading' : 'Set as Current' }}
           </button>
+
+          <!-- Notes — available once volume is completed -->
+          <div v-if="isVolumeCompleted(volumeId)" class="mt-4">
+            <p class="text-[#5a5a72] text-xs mb-2">Your Notes</p>
+            <div class="flex flex-col gap-1.5 w-56">
+              <textarea
+                v-model="noteText"
+                placeholder="Write your thoughts on this volume..."
+                rows="4"
+                class="w-full bg-[#23232b] border border-[#3d3d4d] rounded-lg px-3 py-2 text-white text-xs placeholder-[#5a5a72] focus:outline-none focus:border-[#c10b21] resize-none transition-colors"
+              ></textarea>
+              <button
+                @click="saveNote"
+                class="w-full py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
+                :class="noteSaved
+                  ? 'bg-green-500/10 border border-green-500/40 text-green-400'
+                  : 'bg-[#23232b] border border-[#3d3d4d] text-[#8888a0] hover:border-[#c10b21]/40 hover:text-white'"
+              >
+                {{ noteSaved ? '✓ Saved' : 'Save Note' }}
+              </button>
+            </div>
+          </div>
 
           <!-- Star rating — only shown after marking complete -->
           <div v-if="isVolumeCompleted(volumeId)" class="mt-4">
