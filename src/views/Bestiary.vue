@@ -110,7 +110,7 @@ function viewApostle(apostle) {
     <p class="text-[#5a5a72] text-sm mb-4">Showing {{ filtered.length }} entries</p>
 
     <!-- Apostle grid -->
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       <div
         v-for="apostle in filtered"
         :key="apostle.id"
@@ -123,7 +123,7 @@ function viewApostle(apostle) {
             v-if="getCover(apostle.coverVolume)"
             :src="getCover(apostle.coverVolume)"
             :alt="apostle.name"
-            class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
             <div class="text-[#3d3d4d] text-center">
