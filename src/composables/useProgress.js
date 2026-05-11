@@ -121,16 +121,23 @@ export function useProgress() {
     state.recentActivity = []
   }
 
-  function setVolumeNote(volId, note) {
-    if (!note.trim()) {
-      delete state.volumeNotes[volId]
-    } else {
-      state.volumeNotes[volId] = note.trim()
-    }
+  function addVolumeNote(volId, text) {
+    if (!text.trim()) return false
+    if (!state.volumeNotes[volId]) state.volumeNotes[volId] = []
+    if (state.volumeNotes[volId].length >= 10) return false // cap at 10
+    state.volumeNotes[volId].unshift({ text: text.trim(), time: new Date().toISOString() })
+    return true
   }
 
-  function getVolumeNote(volId) {
-    return state.volumeNotes[volId] ?? ''
+  function clearVolumeNotes(volId) {
+    delete state.volumeNotes[volId]
+  }
+
+  function getVolumeNotes(volId) {
+    const val = state.volumeNotes[volId]
+    // Handle old string format gracefully
+    if (typeof val === 'string') return [{ text: val, time: null }]
+    return val ?? []
   }
 
   function setVolumeRating(volId, rating) {
@@ -179,8 +186,9 @@ export function useProgress() {
     setCurrentProgress,
     markApostleEncountered,
     clearActivity,
-    setVolumeNote,
-    getVolumeNote,
+    addVolumeNote,
+    clearVolumeNotes,
+    getVolumeNotes,
     setVolumeRating,
     getVolumeRating,
     addActivity,

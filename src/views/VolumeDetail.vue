@@ -1,25 +1,28 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProgress } from '../composables/useProgress.js'
 
 const route = useRoute()
 const router = useRouter()
-const { state, isVolumeCompleted, toggleVolume, setCurrentProgress, setVolumeRating, getVolumeRating, setVolumeNote, getVolumeNote } = useProgress()
+const { state, isVolumeCompleted, toggleVolume, setCurrentProgress, setVolumeRating, getVolumeRating, addVolumeNote, clearVolumeNotes, getVolumeNotes, timeAgo } = useProgress()
 
 const hoverRating = ref(0)
-const noteText = ref('')
-const noteSaved = ref(false)
+const newNote = ref('')
 
-function loadNote() {
-  noteText.value = getVolumeNote(volumeId.value)
+// Ticks every 60s so timeAgo labels re-evaluate automatically
+const tick = ref(0)
+let tickInterval = null
+onMounted(() => { tickInterval = setInterval(() => tick.value++, 60000) })
+onUnmounted(() => clearInterval(tickInterval))
+
+function postNote() {
+  if (addVolumeNote(volumeId.value, newNote.value)) {
+    newNote.value = ''
+  }
 }
 
-function saveNote() {
-  setVolumeNote(volumeId.value, noteText.value)
-  noteSaved.value = true
-  setTimeout(() => { noteSaved.value = false }, 2000)
-}
+const notes = computed(() => getVolumeNotes(volumeId.value))
 
 const justSaved = ref(false)
 
@@ -73,7 +76,6 @@ async function fetchVolume() {
     year: 1989 + Math.floor(id / 2),
   }
   loading.value = false
-  loadNote()
 }
 
 onMounted(fetchVolume)
@@ -159,25 +161,43 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
             {{ justSaved ? '✓ Saved!' : isCurrentVolume ? '★ Currently Reading' : 'Set as Current' }}
           </button>
 
-          <!-- Notes — available once volume is completed -->
+          <!-- Notes — comment style, up to 10 per volume -->
           <div v-if="isVolumeCompleted(volumeId)" class="mt-4">
-            <p class="text-[#5a5a72] text-xs mb-2">Your Notes</p>
-            <div class="flex flex-col gap-1.5 w-56">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[#5a5a72] text-xs">Notes {{ notes.length ? `(${notes.length}/10)` : '' }}</p>
+              <button
+                v-if="notes.length"
+                @click="clearVolumeNotes(volumeId)"
+                class="text-[#5a5a72] hover:text-[#f83244] text-xs transition-colors"
+              >Clear all</button>
+            </div>
+            <!-- Input row -->
+            <div class="flex flex-col gap-1.5 w-56 mb-3">
               <textarea
-                v-model="noteText"
-                placeholder="Write your thoughts on this volume..."
-                rows="4"
+                v-model="newNote"
+                placeholder="Leave a note..."
+                rows="3"
+                @keydown.ctrl.enter="postNote"
                 class="w-full bg-[#23232b] border border-[#3d3d4d] rounded-lg px-3 py-2 text-white text-xs placeholder-[#5a5a72] focus:outline-none focus:border-[#c10b21] resize-none transition-colors"
               ></textarea>
               <button
-                @click="saveNote"
-                class="w-full py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
-                :class="noteSaved
-                  ? 'bg-green-500/10 border border-green-500/40 text-green-400'
-                  : 'bg-[#23232b] border border-[#3d3d4d] text-[#8888a0] hover:border-[#c10b21]/40 hover:text-white'"
+                @click="postNote"
+                :disabled="!newNote.trim() || notes.length >= 10"
+                class="w-full py-1.5 rounded-lg text-xs font-medium border border-[#3d3d4d] text-[#8888a0] hover:border-[#c10b21]/40 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {{ noteSaved ? '✓ Saved' : 'Save Note' }}
+                {{ notes.length >= 10 ? 'Limit reached' : 'Post Note' }}
               </button>
+            </div>
+            <!-- Posted notes list -->
+            <div v-if="notes.length" class="w-56 space-y-2">
+              <div
+                v-for="(note, i) in notes"
+                :key="i"
+                class="bg-[#23232b] border border-[#3d3d4d] rounded-lg px-3 py-2"
+              >
+                <p class="text-white text-xs leading-relaxed">{{ note.text }}</p>
+                <p class="text-[#5a5a72] text-xs mt-1">{{ note.time ? (tick, timeAgo(note.time)) : '' }}</p>
+              </div>
             </div>
           </div>
 
