@@ -211,9 +211,9 @@ function handleLogout() {
               <span class="text-[#5a5a72]">Covers</span>
               <span class="text-white">MangaDex API</span>
             </div>
-            <div class="flex justify-between">
-              <span class="text-[#5a5a72]">Manga</span>
-              <span class="text-[#c10b21] font-medium">Berserk — Kentaro Miura</span>
+            <div class="flex justify-between items-center gap-2">
+              <span class="text-[#5a5a72] shrink-0">Manga</span>
+              <span class="text-[#c10b21] font-medium whitespace-nowrap">Berserk - Kentaro Miura</span>
             </div>
           </div>
         </div>
