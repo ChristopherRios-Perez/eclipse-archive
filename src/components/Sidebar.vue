@@ -11,6 +11,7 @@ const { isOpen, toggle } = useSidebar()
 const navItems = [
   { name: 'Dashboard', path: '/', icon: 'grid' },
   { name: 'My Collection', path: '/archive', icon: 'book' },
+  { name: 'Bestiary', path: '/bestiary', icon: 'skull' },
   { name: 'Statistics', path: '/stats', icon: 'chart' },
   { name: 'Settings', path: '/settings', icon: 'settings' },
 ]
@@ -66,6 +67,9 @@ function isActive(path) {
         </svg>
         <svg v-if="item.icon === 'book'" class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
           <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+        </svg>
+        <svg v-if="item.icon === 'skull'" class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 2a7 7 0 00-7 7c0 2.387 1.196 4.494 3 5.741V17a1 1 0 001 1h6a1 1 0 001-1v-2.259A7 7 0 0010 2zM8 17v-1h4v1H8zm4-3H8v-1.126A5 5 0 0110 4a5 5 0 012 9.874V14z" clip-rule="evenodd"/>
         </svg>
         <svg v-if="item.icon === 'chart'" class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
           <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
