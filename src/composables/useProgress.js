@@ -56,9 +56,37 @@ export function useProgress() {
     return state.completedVolumes.includes(volId)
   }
 
+  // Compares calendar dates to update the streak — called before lastRead is overwritten
+  function updateStreak() {
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+
+    if (!state.lastRead) {
+      // First time ever reading
+      state.readingStreak = 1
+      return
+    }
+
+    const lastReadDay = new Date(state.lastRead)
+    lastReadDay.setHours(0, 0, 0, 0)
+
+    const diffDays = Math.round((todayStart - lastReadDay) / 86400000)
+
+    if (diffDays === 0) {
+      // Already logged activity today, streak stays the same
+    } else if (diffDays === 1) {
+      // Read yesterday — keep it going
+      state.readingStreak += 1
+    } else {
+      // Missed at least one day — reset to 1 (today counts)
+      state.readingStreak = 1
+    }
+  }
+
   function toggleVolume(volId) {
     const idx = state.completedVolumes.indexOf(volId)
     if (idx === -1) {
+      updateStreak()
       state.completedVolumes.push(volId)
       addActivity(`Completed Volume ${volId} of Berserk`)
       // Auto-advance current volume so the tracker stays ahead of what's been read
@@ -67,13 +95,14 @@ export function useProgress() {
         state.currentChapter = 1
       }
     } else {
-      // Unchecking — just remove it, don't adjust currentVolume backwards
+      // Unchecking — just remove it, don't touch the streak
       state.completedVolumes.splice(idx, 1)
     }
     state.lastRead = new Date().toISOString()
   }
 
   function setCurrentProgress(volume, chapter) {
+    updateStreak()
     state.currentVolume = volume
     state.currentChapter = chapter
     state.lastRead = new Date().toISOString()
