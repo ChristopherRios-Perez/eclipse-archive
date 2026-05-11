@@ -131,28 +131,9 @@ function viewApostle(apostle) {
               <p class="text-xs">Loading...</p>
             </div>
           </div>
-          <div class="absolute inset-0 bg-gradient-to-t from-[#16161a] via-[#16161a]/20 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-[#16161a] via-[#16161a]/10 to-transparent"></div>
 
-          <!-- Arc badge -->
-          <div class="absolute top-2 left-2">
-            <span
-              class="text-xs px-2 py-0.5 rounded font-medium"
-              :style="{ background: arcColors[apostle.arc] + '33', color: arcColors[apostle.arc], border: '1px solid ' + arcColors[apostle.arc] + '55' }"
-            >{{ apostle.arc }}</span>
-          </div>
-
-          <!-- Status badge -->
-          <div class="absolute top-2 right-2">
-            <span
-              class="text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1"
-              :style="{ background: statusColors[apostle.status] + '22', color: statusColors[apostle.status], border: '1px solid ' + statusColors[apostle.status] + '44' }"
-            >
-              <span class="w-1.5 h-1.5 rounded-full" :style="{ background: statusColors[apostle.status] }"></span>
-              {{ apostle.status }}
-            </span>
-          </div>
-
-          <!-- Encountered indicator -->
+          <!-- Encountered heart -->
           <div v-if="state.apostlesEncountered.includes(apostle.id)" class="absolute bottom-2 right-2">
             <svg class="w-5 h-5 text-[#c10b21]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
           </div>
@@ -162,6 +143,22 @@ function viewApostle(apostle) {
         <div class="p-4">
           <h3 class="text-white font-semibold mb-0.5 group-hover:text-[#c10b21] transition-colors truncate">{{ apostle.name }}</h3>
           <p class="text-[#5a5a72] text-xs mb-3">{{ apostle.title }}</p>
+
+          <!-- Badges moved here — clearly readable on dark background -->
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            <span
+              class="text-xs px-2 py-0.5 rounded font-medium"
+              :style="{ background: arcColors[apostle.arc] + '33', color: arcColors[apostle.arc], border: '1px solid ' + arcColors[apostle.arc] + '55' }"
+            >{{ apostle.arc }}</span>
+            <span
+              class="text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1"
+              :style="{ background: statusColors[apostle.status] + '22', color: statusColors[apostle.status], border: '1px solid ' + statusColors[apostle.status] + '44' }"
+            >
+              <span class="w-1.5 h-1.5 rounded-full shrink-0" :style="{ background: statusColors[apostle.status] }"></span>
+              {{ apostle.status }}
+            </span>
+          </div>
+
           <div class="flex items-center gap-1.5 text-xs">
             <span class="text-[#5a5a72]">First seen</span>
             <span class="text-[#8888a0] truncate">{{ apostle.firstAppearance }}</span>
