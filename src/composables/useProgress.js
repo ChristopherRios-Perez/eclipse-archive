@@ -25,6 +25,7 @@ const state = reactive({
   apostlesEncountered: saved?.apostlesEncountered ?? [],
   recentActivity: saved?.recentActivity ?? [],
   lastRead: saved?.lastRead ?? null,
+  volumeRatings: saved?.volumeRatings ?? {}, // volId → 1-5 stars
 })
 
 // Auto-persist on any state change — deep watch catches nested array mutations
@@ -115,6 +116,19 @@ export function useProgress() {
     if (state.recentActivity.length > 10) state.recentActivity.pop()
   }
 
+  function setVolumeRating(volId, rating) {
+    // Rating of 0 clears it
+    if (rating === 0) {
+      delete state.volumeRatings[volId]
+    } else {
+      state.volumeRatings[volId] = rating
+    }
+  }
+
+  function getVolumeRating(volId) {
+    return state.volumeRatings[volId] ?? 0
+  }
+
   function markApostleEncountered(apostleId) {
     // Guard against duplicates — set semantics via array
     if (!state.apostlesEncountered.includes(apostleId)) {
@@ -147,6 +161,8 @@ export function useProgress() {
     toggleVolume,
     setCurrentProgress,
     markApostleEncountered,
+    setVolumeRating,
+    getVolumeRating,
     addActivity,
     timeAgo,
   }
