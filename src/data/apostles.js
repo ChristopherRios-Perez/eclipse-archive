@@ -1,0 +1,118 @@
+// Single source of truth for all apostle data.
+// Both Bestiary.vue and ApostleDetail.vue import from here —
+// add or edit apostles in one place and both pages update automatically.
+
+export const apostles = [
+  {
+    id: 1, coverVolume: 1,
+    name: 'Zodd the Immortal', arc: 'Golden Age', status: 'Alive', title: 'God Hand Servant',
+    firstAppearance: 'Volume 1, Chapter 2',
+    description: 'An immortal warrior apostle who has fought for centuries. Known as the most powerful pseudo-apostle, Zodd serves as a recurring rival for Guts throughout the series. After Griffith\'s resurrection as Femto, Zodd pledges his loyalty to him. His apostle form is a massive winged bull-like creature. He is one of the few apostles who possesses genuine honor as a warrior.',
+    abilities: ['Immortal regeneration', 'Superhuman strength', 'Flight (apostle form)', 'Master swordsmanship'],
+  },
+  {
+    id: 2, coverVolume: 2,
+    name: 'The Count', arc: 'Golden Age', status: 'Deceased', title: 'Apostle Lord',
+    firstAppearance: 'Volume 1, Chapter 1',
+    description: 'The first major apostle faced by Guts. A corpulent nobleman who sacrificed his wife to the God Hand after discovering her heresy. His apostle form is a massive slug-like creature. The Count is ultimately defeated by Guts and devoured by the God Hand after refusing to offer a sacrifice.',
+    abilities: ['Apostle transformation', 'Enhanced durability', 'Acid secretion'],
+  },
+  {
+    id: 3, coverVolume: 10,
+    name: 'Wyald', arc: 'Golden Age', status: 'Deceased', title: 'Black Dog Knight',
+    firstAppearance: 'Volume 10',
+    description: 'A sadistic and brutal apostle who commanded the Black Dog Knights. Known for extraordinary size and cruelty. Eventually revealed that Zodd was sent to deal with him, suggesting he had become too uncontrollable even for the God Hand\'s plans.',
+    abilities: ['Colossal apostle form', 'Extreme physical power', 'Rapid regeneration'],
+  },
+  {
+    id: 4, coverVolume: 16,
+    name: 'Rosine', arc: 'Conviction', status: 'Deceased', title: 'Elf Queen',
+    firstAppearance: 'Volume 16',
+    description: 'A young girl who escaped an abusive home by becoming an apostle. She created a false paradise for children, transforming them into pseudo-apostles resembling elves. One of the most tragic apostles in the series, as she genuinely wanted to protect children despite the horror of her actions.',
+    abilities: ['Flight', 'Apostle transformation of others', 'High-speed movement', 'Sonic attacks'],
+  },
+  {
+    id: 5, coverVolume: 22,
+    name: 'The Egg of the Perfect World', arc: 'Conviction', status: 'Transcended', title: 'Apostle',
+    firstAppearance: 'Volume 22',
+    description: 'A severely deformed creature who found the Crimson Beherit and swallowed it, becoming the vessel for Griffith\'s reincarnation. After Femto\'s birth, the Egg dissolved, his dream of a beautiful world fulfilled through Griffith\'s descent.',
+    abilities: ['Contains Crimson Beherit', 'Vehicle for God Hand reincarnation'],
+  },
+  {
+    id: 6, coverVolume: 19,
+    name: 'Mozgus', arc: 'Conviction', status: 'Deceased', title: 'Holy Inquisitor',
+    firstAppearance: 'Volume 18',
+    description: 'A fanatical religious inquisitor who believed absolutely in divine justice through torture. He and his disciples became apostle-like beings empowered by the spiritual energy of the Tower of Conviction. His angel-like form is both beautiful and terrifying.',
+    abilities: ['Angel-like apostle form', 'Flight with stone wings', 'Breath of holy fire', 'Extreme durability'],
+  },
+  {
+    id: 7, coverVolume: 27,
+    name: 'Grunbeld', arc: 'Millennium Falcon', status: 'Alive', title: 'Great Apostle',
+    firstAppearance: 'Volume 27',
+    description: 'A massive apostle knight who serves as one of Griffith\'s most fearsome generals. He is one of the few apostles to fight Guts when Guts wears the Berserker Armor, nearly matching him blow for blow. His apostle form is a colossal dragon.',
+    abilities: ['Dragon apostle form', 'Fire breath', 'Hardened crystal scales', 'Exceptional swordsmanship'],
+  },
+  {
+    id: 8, coverVolume: 31,
+    name: 'Ganishka', arc: 'Fantasia', status: 'Transcended', title: 'Emperor',
+    firstAppearance: 'Volume 30',
+    description: 'The most powerful apostle in the entire series. As Emperor of Kushan, he commands vast armies and transforms into a colossal fog giant. His second transformation via the Demon Infant and the Maelstrom pierces the boundary between the physical and astral worlds, triggering the merging of both realms.',
+    abilities: ['Fog giant transformation', 'Immense spiritual power', 'Second transformation triggers world merger', 'Commands apostle armies'],
+  },
+  {
+    id: 9, coverVolume: 28,
+    name: 'Locus', arc: 'Millennium Falcon', status: 'Alive', title: 'Moonlight Knight',
+    firstAppearance: 'Volume 28',
+    description: 'A chivalric apostle who serves Griffith with knightly honor. Called the Moonlight Knight for his mastery of the lance in moonlit battles. Unlike many apostles, Locus maintains a code of honor and treats worthy opponents with respect.',
+    abilities: ['Apostle transformation', 'Lance mastery', 'Extreme speed'],
+  },
+  {
+    id: 10, coverVolume: 29,
+    name: 'Irvine', arc: 'Millennium Falcon', status: 'Alive', title: 'Archer Apostle',
+    firstAppearance: 'Volume 28',
+    description: 'A wolf-like apostle with extraordinary archery skills serving under Griffith. One of the five Falcon Wing Generals of the reborn Band of the Hawk. His apostle form resembles a massive wolf, and his arrows can pierce through entire formations of soldiers.',
+    abilities: ['Wolf apostle form', 'Extraordinary archery', 'Arrow shots through multiple targets'],
+  },
+  {
+    id: 11, coverVolume: 1,
+    name: 'The Baron', arc: 'Black Swordsman', status: 'Deceased', title: 'Snake Baron',
+    firstAppearance: 'Volume 1',
+    description: 'One of the earliest apostles encountered by Guts during his travels as the Black Swordsman. He rules over a small domain and his apostle form is a massive serpentine creature. His defeat at Guts\'s hands marks one of the first steps in Guts\'s journey of vengeance.',
+    abilities: ['Snake apostle form', 'Immense physical power', 'Armored scales'],
+  },
+  {
+    id: 12, coverVolume: 3,
+    name: 'Female Apostle', arc: 'Golden Age', status: 'Deceased', title: 'Unnamed Apostle',
+    firstAppearance: 'Volume 3',
+    description: 'A female apostle encountered during Guts\'s early travels with the Band of the Hawk. One of the first to recognise the Mark of Sacrifice on Guts, and among the first apostles to actively hunt him. Her true name is never revealed in the series.',
+    abilities: ['Apostle transformation', 'Enhanced speed and strength'],
+  },
+  {
+    id: 13, coverVolume: 30,
+    name: 'Rakshas', arc: 'Fantasia', status: 'Alive', title: 'Shadow Apostle',
+    firstAppearance: 'Volume 29',
+    description: 'A mysterious and unsettling apostle serving in Griffith\'s reborn Band of the Falcon. His apostle form is a shapeshifting mass of shadowy tendrils and cloth-like darkness that can slice through almost anything. Despite serving Griffith outwardly, Rakshas secretly covets Griffith\'s face and harbours a personal obsession with removing it.',
+    abilities: ['Shapeshifting shadow form', 'Razor tendrils', 'Near-perfect stealth', 'Extreme agility'],
+  },
+  {
+    id: 14, coverVolume: 35,
+    name: 'The Sea God', arc: 'Fantasia', status: 'Deceased', title: 'Ancient Leviathan',
+    firstAppearance: 'Volume 34',
+    description: 'An ancient and colossal apostle who slumbered beneath the sea for centuries, worshipped as a god by a remote island village that offered human sacrifices to it. Guts and his companions are forced to battle it from within during their voyage to Skellig. Widely regarded as one of the largest and oldest apostles ever encountered in the series.',
+    abilities: ['Colossal sea creature form', 'Regeneration', 'Entire ecosystem lives within its body', 'Tentacle control'],
+  },
+  {
+    id: 15, coverVolume: 4,
+    name: 'Bonebeard', arc: 'Black Swordsman', status: 'Deceased', title: 'Pirate Apostle',
+    firstAppearance: 'Volume 3',
+    description: 'A ruthless pirate captain who used a Beherit to become an apostle and terrorised coastal villages. Encountered by Guts during his early Black Swordsman wanderings. His defeat comes swiftly at the hands of Guts, demonstrating the gap in power between ordinary apostles and the Black Swordsman.',
+    abilities: ['Apostle transformation', 'Enhanced physical power', 'Commands pirate fleet'],
+  },
+  {
+    id: 16, coverVolume: 2,
+    name: 'The Slug Baron', arc: 'Black Swordsman', status: 'Deceased', title: 'Apostle Lord',
+    firstAppearance: 'Volume 1',
+    description: 'A grotesque slug-like apostle who lorded over a domain of miserable subjects in the early Black Swordsman arc. His defeat at Guts\'s hands provides a key lead on the whereabouts of a Beherit. One of the first apostles to reveal just how widespread the God Hand\'s influence truly is.',
+    abilities: ['Slug apostle form', 'Acid secretion', 'Immense bulk and durability'],
+  },
+]
