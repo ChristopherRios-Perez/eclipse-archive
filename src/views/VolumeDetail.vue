@@ -3,9 +3,11 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProgress, getVolumeChapters } from '../composables/useProgress.js'
 import { useSettings } from '../composables/useSettings.js'
+import { useCovers } from '../composables/useCovers.js'
 
 const route  = useRoute()
 const router = useRouter()
+const { fetchAllCovers, getCover } = useCovers()
 const {
   state, isVolumeCompleted, toggleVolume, setCurrentProgress,
   isChapterCompleted, toggleChapter, getVolumeChapterProgress,
@@ -51,14 +53,9 @@ async function fetchVolume() {
   const id = volumeId.value
   const chapters = getVolumeChapters(id)
 
-  let coverUrl = null
-  try {
-    const resp = await fetch(`https://api.jikan.moe/v4/manga/2/full`)
-    if (resp.ok) {
-      const data = await resp.json()
-      coverUrl = data?.data?.images?.jpg?.large_image_url ?? null
-    }
-  } catch {}
+  // Use the same MangaDex cover cache as Archive — gets the right cover per volume
+  await fetchAllCovers()
+  const coverUrl = getCover(id)
 
   volume.value = {
     id,
