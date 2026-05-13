@@ -4,10 +4,10 @@ import { useAuth } from '../composables/useAuth.js'
 
 const { login, register, loginAsGuest } = useAuth()
 
-// Single ref drives which form is visible — simpler than a router-based approach for just two tabs
+// Single ref controls which form is visible - simpler than router tabs for just two states
 const tab = ref('login')
 
-// Login and register fields are kept separate so switching tabs doesn't bleed state
+// Login and register fields are separate so switching tabs doesn't bleed state
 const loginEmail = ref('')
 const loginPassword = ref('')
 const loginError = ref('')
@@ -19,14 +19,14 @@ const regConfirm = ref('')
 const regError = ref('')
 
 function handleLogin() {
-  loginError.value = '' // clear stale error before each attempt
+  loginError.value = '' // clear any stale error before each attempt
   if (!loginEmail.value || !loginPassword.value) {
     loginError.value = 'Please fill in all fields.'
     return
   }
   const { error } = login(loginEmail.value, loginPassword.value)
   if (error) loginError.value = error
-  // on success, useAuth updates state and App.vue reactively shows the main layout
+  // on success useAuth updates state and App.vue reactively shows the main layout
 }
 
 function handleRegister() {
@@ -35,7 +35,7 @@ function handleRegister() {
     regError.value = 'Please fill in all fields.'
     return
   }
-  // Client-side checks — not a substitute for server validation, but fine for localStorage auth
+  // Client-side only - not a substitute for server validation, but fine for localStorage auth
   if (regPassword.value !== regConfirm.value) {
     regError.value = 'Passwords do not match.'
     return
@@ -52,7 +52,7 @@ function handleRegister() {
 <template>
   <div class="fixed inset-0 bg-[#111114] flex items-center justify-center px-4">
 
-    <!-- Background — pulsing crimson void -->
+    <!-- Background - pulsing crimson void -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <!-- Primary slow breathe -->
       <div class="glow-primary absolute top-1/2 left-1/2 w-[700px] h-[700px] rounded-full"
@@ -198,7 +198,7 @@ function handleRegister() {
             </svg>
             Continue as Guest
           </button>
-          <p class="text-center text-[#5a5a72] text-xs mt-2">No account needed — progress won't be saved to a profile</p>
+          <p class="text-center text-[#5a5a72] text-xs mt-2">No account needed, but progress won't be saved to a profile</p>
         </div>
       </div>
     </div>
