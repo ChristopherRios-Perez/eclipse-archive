@@ -338,6 +338,7 @@ function formatTime(iso) {
                 :src="currentCoverUrl"
                 :alt="`Berserk Vol. ${state.currentVolume}`"
                 class="w-full h-full object-cover"
+                referrerpolicy="no-referrer"
               />
               <div v-else class="w-full h-full flex items-center justify-center">
                 <div class="text-center">
