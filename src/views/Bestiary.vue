@@ -120,6 +120,7 @@ function viewApostle(apostle) {
             :src="getCover(apostle.coverVolume)"
             :alt="apostle.name"
             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+            referrerpolicy="no-referrer"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
             <div class="text-[#3d3d4d] text-center">

@@ -121,7 +121,7 @@ const isCurrentVolume = computed(() => state.currentVolume === volumeId.value)
       <!-- Cover -->
       <div class="shrink-0">
         <div class="w-56 h-80 bg-[#16161a] rounded-xl overflow-hidden border border-[#2d2d38] relative">
-          <img v-if="volume.coverUrl" :src="volume.coverUrl" :alt="volume.title" class="w-full h-full object-cover" />
+          <img v-if="volume.coverUrl" :src="volume.coverUrl" :alt="volume.title" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-b from-[#1c1c22] to-[#111114]">
             <div class="text-center">
               <div class="text-[#c10b21] font-black text-7xl leading-none">B</div>
