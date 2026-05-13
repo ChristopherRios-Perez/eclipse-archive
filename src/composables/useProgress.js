@@ -4,7 +4,7 @@ const TOTAL_VOLUMES = 41
 const TOTAL_CHAPTERS = 364
 const STORAGE_KEY = 'eclipse-archive-progress'
 
-// Per-volume chapter counts — single source of truth used everywhere
+// Per-volume chapter counts - single source of truth used everywhere
 export const CHAPTER_COUNTS = {
   1:8,2:8,3:8,4:8,5:8,6:8,7:9,8:9,9:9,10:9,11:9,
   12:8,13:8,14:8,15:8,16:8,17:8,18:8,19:8,20:8,21:8,
@@ -32,7 +32,7 @@ const saved = loadFromStorage()
 
 const state = reactive({
   completedVolumes:   saved?.completedVolumes   ?? [],
-  completedChapters:  saved?.completedChapters  ?? {}, // volId → [chapterNum, ...]
+  completedChapters:  saved?.completedChapters  ?? {}, // volId -> [chapterNum, ...]
   currentVolume:      saved?.currentVolume      ?? 1,
   currentChapter:     saved?.currentChapter     ?? 1,
   readingStreak:      saved?.readingStreak      ?? 0,
@@ -78,7 +78,7 @@ export function useProgress() {
   function toggleVolume(volId) {
     const idx = state.completedVolumes.indexOf(volId)
     if (idx === -1) {
-      // Mark complete — also fill all chapters for this volume
+      // Mark complete - also fill all chapters for this volume
       updateStreak()
       state.completedVolumes.push(volId)
       state.completedChapters[volId] = getVolumeChapters(volId)
@@ -88,7 +88,7 @@ export function useProgress() {
         state.currentChapter = getVolumeChapters(Math.min(TOTAL_VOLUMES, volId + 1))[0] ?? 1
       }
     } else {
-      // Unmark — clear all chapters for this volume too
+      // Unmark - clear all chapters for this volume too
       state.completedVolumes.splice(idx, 1)
       delete state.completedChapters[volId]
     }
@@ -114,7 +114,7 @@ export function useProgress() {
       // Advance currentChapter tracker
       if (chapterNum >= state.currentChapter) {
         state.currentChapter = chapterNum + 1
-        // If chapter overflows into next volume, advance currentVolume too
+        // If chapter overflows into next volume, bump currentVolume too
         const volChapters = getVolumeChapters(volId)
         if (chapterNum >= volChapters[volChapters.length - 1]) {
           if (volId >= state.currentVolume) {
@@ -132,7 +132,7 @@ export function useProgress() {
         addActivity(`Completed Volume ${volId} of Berserk`)
       }
     } else {
-      // Unmark chapter — also unmark the parent volume if it was complete
+      // Unmark chapter - also unmark the volume if it was complete
       state.completedChapters[volId].splice(idx, 1)
       const vi = state.completedVolumes.indexOf(volId)
       if (vi !== -1) state.completedVolumes.splice(vi, 1)
@@ -164,8 +164,6 @@ export function useProgress() {
     else if (diff === 1) { state.readingStreak += 1 }
     else                 { state.readingStreak = 1 }
   }
-
-  // --- Everything else unchanged ---
 
   function addActivity(text) {
     state.recentActivity.unshift({ text, time: new Date().toISOString() })

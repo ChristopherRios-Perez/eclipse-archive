@@ -1,11 +1,11 @@
 import { reactive, computed } from 'vue'
 
-// Separate keys so auth session and account list don't step on each other
+// Separate keys so the auth session and account list don't collide
 const AUTH_KEY = 'eclipse-archive-auth'
 const ACCOUNTS_KEY = 'eclipse-archive-accounts'
 
-// Called once at module load — wrapping in try/catch because
-// localStorage can throw in some browsers with strict privacy settings
+// Called once at module load - try/catch because localStorage can throw
+// in some browsers with strict privacy settings
 function loadAuth() {
   try {
     const raw = localStorage.getItem(AUTH_KEY)
@@ -24,13 +24,13 @@ function loadAccounts() {
   }
 }
 
-// Module-level reactive state so auth is shared across all composable calls
-// without needing a store — works fine at this scale
+// Module-level so auth state is shared across all composable calls
+// without needing a store - fine at this scale
 const state = reactive({
   user: loadAuth(),
 })
 
-// Writes current user to localStorage (or clears it on logout)
+// Writes the current user to localStorage, or clears it on logout
 function persist() {
   if (state.user) {
     localStorage.setItem(AUTH_KEY, JSON.stringify(state.user))
@@ -41,7 +41,7 @@ function persist() {
 
 export function useAuth() {
   const isLoggedIn = computed(() => !!state.user)
-  const isGuest = computed(() => state.user?.type === 'guest') // guests can browse but progress isn't tied to a profile
+  const isGuest = computed(() => state.user?.type === 'guest') // guests can browse but progress isn't saved to a profile
   const username = computed(() => state.user?.username ?? '')
 
   function loginAsGuest() {
@@ -51,10 +51,10 @@ export function useAuth() {
 
   function login(email, password) {
     const accounts = loadAccounts()
-    // Re-loading from storage each time so changes made in other tabs are picked up
+    // Re-load from storage each time so other-tab changes are picked up
     const account = accounts.find(a => a.email === email && a.password === password)
     if (!account) return { error: 'Invalid email or password.' }
-    // Only store what we actually need — no reason to keep the password in state
+    // Only store what we need - no reason to keep the password in state
     state.user = { type: 'user', username: account.username, email: account.email }
     persist()
     return { error: null }
@@ -65,7 +65,7 @@ export function useAuth() {
     if (password.length < 8) {
       return { error: 'Password must be at least 8 characters.' }
     }
-    // Email uniqueness is the only constraint we enforce right now
+    // Email has to be unique - that's the only constraint we check
     if (accounts.find(a => a.email === email)) {
       return { error: 'An account with that email already exists.' }
     }
@@ -78,10 +78,10 @@ export function useAuth() {
 
   function logout() {
     state.user = null
-    persist() // removes the key entirely — cleaner than storing null
+    persist() // removes the key entirely, cleaner than storing null
   }
 
-  // Updates the display name both in session and in the stored accounts list
+  // Updates the display name in the session and in the stored accounts list
   function updateUsername(newUsername) {
     if (!newUsername.trim() || !state.user) return { error: 'Username cannot be empty.' }
     if (state.user.type === 'user') {

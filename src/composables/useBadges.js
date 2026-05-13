@@ -4,7 +4,7 @@ import { useProgress } from './useProgress.js'
 export function useBadges() {
   const { state, completedCount } = useProgress()
 
-  // Helper — how many volumes in a range are completed
+  // How many volumes in a range are completed
   const completedInRange = (start, end) =>
     state.completedVolumes.filter(v => v >= start && v <= end).length
 

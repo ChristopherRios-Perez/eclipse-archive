@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
 
-// Shared cache — only fetches once regardless of how many components use this
+// Shared cache - only fetches once regardless of how many components use this
 const coverMap = ref({})
 const fetched = ref(false)
 const fetching = ref(false)
