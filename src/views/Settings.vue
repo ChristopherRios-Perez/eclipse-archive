@@ -45,7 +45,7 @@ function cancelEdit() {
 const showResetConfirm = ref(false)
 
 function resetProgress() {
-  // Wipe all tracked reading data from localStorage
+  // Wipe all tracked reading data
   progressState.completedVolumes = []
   progressState.currentVolume = 1
   progressState.currentChapter = 1
@@ -87,7 +87,7 @@ function handleLogout() {
             </div>
             <div>
               <p class="text-white font-semibold text-lg">{{ username }}</p>
-              <p class="text-[#5a5a72] text-sm">{{ authState.user?.email ?? 'No email — guest session' }}</p>
+              <p class="text-[#5a5a72] text-sm">{{ authState.user?.email ?? 'No email (guest session)' }}</p>
               <span
                 class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium"
                 :class="isGuest ? 'bg-[#3d3d4d] text-[#8888a0]' : 'bg-[#c10b21]/20 text-[#c10b21]'"

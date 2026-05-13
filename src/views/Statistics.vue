@@ -18,7 +18,7 @@ const {
   timeAgo,
 } = useProgress()
 
-// Arc definitions — volume ranges and their accent colors
+// Arc definitions - volume ranges and their accent colors
 const arcs = [
   { name: 'Black Swordsman', start: 1,  end: 3,  color: '#c10b21' },
   { name: 'Golden Age',      start: 4,  end: 10, color: '#d4a017' },
@@ -27,20 +27,18 @@ const arcs = [
   { name: 'Fantasia',        start: 29, end: 41, color: '#c10b21' },
 ]
 
-// For each arc, count how many of its volumes are completed
+// Count completed volumes per arc
 const arcStats = computed(() => arcs.map(arc => {
   const total = arc.end - arc.start + 1
   const done = state.completedVolumes.filter(v => v >= arc.start && v <= arc.end).length
   return { ...arc, total, done, pct: Math.round((done / total) * 100) }
 }))
 
-// Actual chapters read — counts individually tracked chapters including partial volumes
 const chaptersRead = totalChaptersRead
 
-// All 41 volumes in order for the completion heatmap
+// All 41 volumes for the completion heatmap
 const allVolumes = Array.from({ length: 41 }, (_, i) => i + 1)
 
-// Which arc does this volume belong to?
 function getArcColor(vol) {
   for (const arc of arcs) {
     if (vol >= arc.start && vol <= arc.end) return arc.color
@@ -82,7 +80,7 @@ function getArcColor(vol) {
       </div>
     </div>
 
-    <!-- Currently reading banner — updates whenever Dashboard progress is changed -->
+    <!-- Currently reading banner - updates when Dashboard progress changes -->
     <div class="bg-[#16161a] border border-[#2d2d38] rounded-xl p-4 mb-6 flex items-center gap-6">
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 bg-[#c10b21] rounded-full animate-pulse"></div>
@@ -161,7 +159,7 @@ function getArcColor(vol) {
               {{ String(vol).padStart(2, '0') }}
               <!-- Tooltip on hover -->
               <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1c1c22] border border-[#3d3d4d] text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                Vol {{ vol }} — {{ isVolumeCompleted(vol) ? 'Read' : 'Unread' }}
+                Vol {{ vol }} - {{ isVolumeCompleted(vol) ? 'Read' : 'Unread' }}
               </div>
             </div>
           </div>
