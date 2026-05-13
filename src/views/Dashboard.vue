@@ -28,13 +28,13 @@ const {
   clearReadingGoal,
 } = useProgress()
 
-// Avatar dropdown + cover art for the currently reading card
+// Avatar dropdown state + cover art for the currently reading card
 const showUserMenu = ref(false)
 const currentCoverUrl = ref(null)
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
 const coversCache = ref([])
 
-// Paginates through MangaDex covers once and caches them — no need to hit the API again on re-renders
+// Paginates through MangaDex covers once and caches them - no need to hit the API again on re-renders
 async function loadCovers() {
   if (coversCache.value.length) return
   try {
@@ -51,7 +51,7 @@ async function loadCovers() {
   } catch {}
 }
 
-// Prefer English locale (Dark Horse / Deluxe editions), fall back to whatever's available
+// Prefer English locale (Dark Horse / Deluxe), fall back to whatever's available
 function resolveVolumeCover(vol) {
   const num = parseInt(vol)
   const match =
@@ -65,7 +65,7 @@ watch(() => state.currentVolume, vol => resolveVolumeCover(vol))
 
 function handleLogout() { showUserMenu.value = false; logout() }
 
-// How far through the current volume the user is, chapter by chapter
+// Chapter-level progress through the current volume
 function getVolumeChaptersCount(volId) { return CHAPTER_COUNTS[volId] ?? 8 }
 function getChapterPct(volId) {
   const done  = (state.completedChapters?.[volId] ?? []).length
@@ -73,7 +73,7 @@ function getChapterPct(volId) {
   return Math.round((done / total) * 100)
 }
 
-// Quick volume search — matches on title, arc name, or padded number ("05", "golden"...)
+// Quick volume search - matches on title, arc name, or padded number ("05", "golden"...)
 const searchQuery = ref('')
 const showSearch = ref(false)
 
@@ -120,7 +120,7 @@ function openNotifications() {
   localStorage.setItem(NOTIF_KEY, now)
 }
 
-// Reading goal — pre-fills the modal with existing goal values if one is already set
+// Pre-fills the modal with existing goal values if one is already set
 const showGoalModal = ref(false)
 const goalVolume = ref(41)
 const goalDate = ref('')
@@ -137,7 +137,7 @@ function saveGoal() {
   showGoalModal.value = false
 }
 
-// Crunch the goal numbers — days left, volumes needed, whether we're on pace
+// Calculate goal stats - days left, volumes needed, whether we're on pace
 const goalStats = computed(() => {
   const g = state.readingGoal
   if (!g) return null

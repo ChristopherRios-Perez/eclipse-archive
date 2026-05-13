@@ -18,9 +18,9 @@ const routes = [
 ]
 
 export default createRouter({
-  // Hash history keeps routing working on Cloudflare Pages without any server config
+  // Hash history so routing works on Cloudflare Pages without any server config
   history: createWebHashHistory(),
   routes,
-  // Always scroll to top on navigation — avoids inheriting scroll position from the previous page
+  // Always scroll to top on navigation - avoids inheriting scroll position from the previous page
   scrollBehavior: () => ({ top: 0 }),
 })

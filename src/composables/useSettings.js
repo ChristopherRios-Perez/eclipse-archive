@@ -13,7 +13,7 @@ function loadSettings() {
 
 const saved = loadSettings()
 
-// Module-level so all components share the same settings instance
+// Module-level so all components share the same settings object
 const settings = reactive({
   spoilerBlur: saved.spoilerBlur ?? false,
 })
