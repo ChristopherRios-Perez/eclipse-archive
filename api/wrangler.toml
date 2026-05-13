@@ -1,0 +1,15 @@
+name = "eclipse-archive-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# KV namespace for storing user accounts and progress data.
+# Run `wrangler kv namespace create ECLIPSE_KV` to create it,
+# then paste the id below.
+[[kv_namespaces]]
+binding = "ECLIPSE_KV"
+id = "REPLACE_WITH_YOUR_KV_ID"
+
+[vars]
+# Secret used to sign JWT tokens. Set via `wrangler secret put JWT_SECRET`
+# in production — do NOT hardcode real secrets here.
+JWT_SECRET = "dev-secret-change-in-production"
