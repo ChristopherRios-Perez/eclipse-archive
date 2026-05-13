@@ -1,4 +1,5 @@
 import { reactive, computed, watch } from 'vue'
+import { api, getToken } from '../services/api.js'
 
 const TOTAL_VOLUMES = 41
 const TOTAL_CHAPTERS = 364
@@ -55,9 +56,30 @@ const state = reactive({
   readingGoal:        saved?.readingGoal        ?? null,
 })
 
+// Debounce so we don't hammer the API on rapid changes
+let syncTimer = null
+
+// Persist locally on every change; debounce-sync to API when a token exists.
+// Guest users only ever use localStorage.
 watch(state, val => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+  if (getToken()) {
+    clearTimeout(syncTimer)
+    syncTimer = setTimeout(() => { api.progress.save(val) }, 1500)
+  }
 }, { deep: true })
+
+// Call this after login to pull the user's progress from the API.
+// Falls back silently to the existing localStorage data if the request fails.
+async function loadProgressFromApi() {
+  try {
+    const data = await api.progress.get()
+    if (data && !data.error) {
+      Object.assign(state, data)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    }
+  } catch {}
+}
 
 export function useProgress() {
   const completedCount     = computed(() => state.completedVolumes.length)
@@ -238,6 +260,7 @@ export function useProgress() {
 
   return {
     state,
+    loadProgressFromApi,
     completedCount,
     volumesLeft,
     strugglePercentage,
