@@ -16,7 +16,16 @@ const activeFilter = ref('All')
 
 const filters = ['All', 'Black Swordsman', 'Golden Age', 'Conviction', 'Millennium Falcon', 'Fantasia']
 
-// Apostle data lives in src/data/apostles.js — edit there, not here
+// Apostle data lives in src/data/apostles.js - edit there, not here
+
+// Returns true if the user has read far enough to know this apostle's status.
+// Parses the volume number out of firstAppearance ("Volume 10", "Volume 10, Chapter 2", etc.)
+function hasReached(apostle) {
+  const match = apostle.firstAppearance.match(/Volume (\d+)/)
+  if (!match) return true
+  const vol = parseInt(match[1])
+  return state.completedVolumes.includes(vol) || state.currentVolume >= vol
+}
 
 const statusColors = {
   'Alive': '#16a34a',
@@ -137,12 +146,21 @@ function viewApostle(apostle) {
               class="text-xs px-2 py-0.5 rounded font-medium"
               :style="{ background: arcColors[apostle.arc] + '33', color: arcColors[apostle.arc], border: '1px solid ' + arcColors[apostle.arc] + '55' }"
             >{{ apostle.arc }}</span>
+            <!-- Status hidden until the user has read far enough -->
             <span
+              v-if="hasReached(apostle)"
               class="text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1"
               :style="{ background: statusColors[apostle.status] + '22', color: statusColors[apostle.status], border: '1px solid ' + statusColors[apostle.status] + '44' }"
             >
               <span class="w-1.5 h-1.5 rounded-full shrink-0" :style="{ background: statusColors[apostle.status] }"></span>
               {{ apostle.status }}
+            </span>
+            <span
+              v-else
+              class="text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1 bg-[#23232b] border border-[#3d3d4d] text-[#5a5a72]"
+            >
+              <span class="w-1.5 h-1.5 rounded-full shrink-0 bg-[#3d3d4d]"></span>
+              Unknown
             </span>
           </div>
 
