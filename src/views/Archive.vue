@@ -8,16 +8,16 @@ import { useSettings } from '../composables/useSettings.js'
 const router = useRouter()
 const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes, toggleWishlist, isWishlisted, state } = useProgress()
 const { settings } = useSettings()
-const { isOpen } = useSidebar() // used to nudge the header title when sidebar collapses
+const { isOpen } = useSidebar() // nudges the header title when sidebar collapses
 
-const volumes = ref([]) // populated after the MangaDex cover fetch resolves
+const volumes = ref([]) // populated after the MangaDex cover fetch
 const loading = ref(true)
 const error = ref(null)
 const searchQuery = ref('')
 const filterStatus = ref('all')
-const viewMode = ref('grid') // 'grid' or 'list'
+const viewMode = ref('grid') // grid or list
 
-// Static volume metadata — covers get attached later after the API call
+// Static volume metadata - covers get attached later after the API call
 const berserkVolumes = Array.from({ length: 41 }, (_, i) => ({
   id: i + 1,
   title: `Berserk Vol. ${i + 1}`,
@@ -26,7 +26,7 @@ const berserkVolumes = Array.from({ length: 41 }, (_, i) => ({
   arc: getArc(i + 1),
 }))
 
-// Per-volume chapter counts pulled from published data — most are 8, a few early ones are 9
+// Per-volume chapter counts from published data - most are 8, a few early ones are 9
 function getChapterCount(vol) {
   const map = {1:8,2:8,3:8,4:8,5:8,6:8,7:9,8:9,9:9,10:9,11:9,12:8,13:8,14:8,15:8,16:8,17:8,18:8,19:8,20:8,21:8,22:8,23:8,24:8,25:8,26:8,27:8,28:8,29:8,30:8,31:8,32:8,33:8,34:8,35:8,36:8,37:8,38:8,39:8,40:8,41:8}
   return map[vol] ?? 8
@@ -41,7 +41,7 @@ function getArc(vol) {
   return 'Fantasia'
 }
 
-// MangaDex UUID for Berserk — used to scope cover art queries
+// MangaDex UUID for Berserk - used to scope cover art queries
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
 
 async function fetchBerserkCovers() {
@@ -50,7 +50,7 @@ async function fetchBerserkCovers() {
     let offset = 0
     const limit = 100 // MangaDex max per request
 
-    // Paginate until we have all covers or all 41 volumes are filled
+    // Paginate until we have covers for all 41 volumes
     while (Object.keys(coverMap).length < 41) {
       const resp = await fetch(
         `https://api.mangadex.org/cover?manga[]=${MANGA_ID}&limit=${limit}&offset=${offset}&order[volume]=asc`
@@ -61,7 +61,7 @@ async function fetchBerserkCovers() {
 
       data.forEach(cover => {
         const vol = parseInt(cover.attributes.volume)
-        // Skip non-numeric volumes (specials, etc.) and only take the first cover per volume
+        // Skip non-numeric volumes (specials etc.) and only take the first cover per volume
         if (!isNaN(vol) && vol >= 1 && vol <= 41 && !coverMap[vol]) {
           coverMap[vol] = `https://uploads.mangadex.org/covers/${MANGA_ID}/${cover.attributes.fileName}.512.jpg`
         }
@@ -71,24 +71,23 @@ async function fetchBerserkCovers() {
       if (offset >= total) break
     }
 
-    // Attach cover URLs directly onto the volume objects — mutating is fine here
+    // Attach cover URLs directly onto the volume objects - mutating is fine here
     berserkVolumes.forEach(v => {
       if (coverMap[v.volume]) v.coverUrl = coverMap[v.volume]
     })
   } catch {
     // If the API is down or rate-limited, volumes still render with the B placeholder
   }
-  // Always update volumes and clear loading, even on failure
+  // Always update volumes and clear loading even on failure
   volumes.value = [...berserkVolumes]
   loading.value = false
 }
 
 onMounted(fetchBerserkCovers)
 
-// Recomputes whenever search, filter, or progress state changes
 const filtered = computed(() => {
   return volumes.value.filter(v => {
-    // Search matches against both title and arc name
+    // Search matches on title or arc name
     const matchSearch = v.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       v.arc.toLowerCase().includes(searchQuery.value.toLowerCase())
     const completed = isVolumeCompleted(v.id)
@@ -106,7 +105,7 @@ const inProgressCount = computed(() => {
   return volumes.value.filter(v => !isVolumeCompleted(v.id) && v.id <= 1).length
 })
 
-// Arc color palette — Black Swordsman and Fantasia share crimson intentionally
+// Arc color palette - Black Swordsman and Fantasia both use crimson intentionally
 const arcColors = {
   'Black Swordsman': '#c10b21',
   'Golden Age': '#d4a017',
