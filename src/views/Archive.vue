@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
 import { useSettings } from '../composables/useSettings.js'
+import { COVER_URLS } from '../data/covers.js'
 
 const router = useRouter()
 const { state, isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes, toggleWishlist, isWishlisted } = useProgress()
@@ -41,51 +42,11 @@ function getArc(vol) {
   return 'Fantasia'
 }
 
-// MangaDex UUID for Berserk - used to scope cover art queries
-const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
-
-// Route through the Cloudflare Pages Function proxy on production to avoid CORS
-const isLocal = window.location.hostname === 'localhost'
-function coverUrl(offset, limit) {
-  const qs = `manga[]=${MANGA_ID}&limit=${limit}&offset=${offset}&order[volume]=asc`
-  return isLocal
-    ? `https://api.mangadex.org/cover?${qs}`
-    : `/api/covers?${qs}`
-}
-
 async function fetchBerserkCovers() {
-  try {
-    const coverMap = {}
-    let offset = 0
-    const limit = 100 // MangaDex max per request
-
-    // Paginate until we have covers for all 41 volumes
-    while (Object.keys(coverMap).length < 41) {
-      const resp = await fetch(coverUrl(offset, limit))
-      if (!resp.ok) throw new Error()
-      const { data, total } = await resp.json()
-      if (!data.length) break
-
-      data.forEach(cover => {
-        const vol = parseInt(cover.attributes.volume)
-        // Skip non-numeric volumes (specials etc.) and only take the first cover per volume
-        if (!isNaN(vol) && vol >= 1 && vol <= 41 && !coverMap[vol]) {
-          coverMap[vol] = `https://uploads.mangadex.org/covers/${MANGA_ID}/${cover.attributes.fileName}.512.jpg`
-        }
-      })
-
-      offset += limit
-      if (offset >= total) break
-    }
-
-    // Attach cover URLs directly onto the volume objects - mutating is fine here
-    berserkVolumes.forEach(v => {
-      if (coverMap[v.volume]) v.coverUrl = coverMap[v.volume]
-    })
-  } catch {
-    // If the API is down or rate-limited, volumes still render with the B placeholder
-  }
-  // Always update volumes and clear loading even on failure
+  // Covers are now bundled from src/data/covers.js - no API call needed
+  berserkVolumes.forEach(v => {
+    if (COVER_URLS[v.volume]) v.coverUrl = COVER_URLS[v.volume]
+  })
   volumes.value = [...berserkVolumes]
   loading.value = false
 }
