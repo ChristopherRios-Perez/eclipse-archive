@@ -32,6 +32,10 @@ const {
 const showUserMenu = ref(false)
 const currentCoverUrl = ref(null)
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
+const isLocal = window.location.hostname === 'localhost'
+const coverApiBase = isLocal
+  ? `https://api.mangadex.org/cover?manga[]=${MANGA_ID}`
+  : `/api/covers?manga[]=${MANGA_ID}`
 const coversCache = ref([])
 
 // Paginates through MangaDex covers once and caches them - no need to hit the API again on re-renders
@@ -40,7 +44,7 @@ async function loadCovers() {
   try {
     let all = [], offset = 0
     while (true) {
-      const r = await fetch(`https://api.mangadex.org/cover?manga[]=${MANGA_ID}&limit=100&offset=${offset}&order[volume]=asc`)
+      const r = await fetch(`${coverApiBase}&limit=100&offset=${offset}&order[volume]=asc`)
       if (!r.ok) break
       const { data, total } = await r.json()
       all = all.concat(data)
