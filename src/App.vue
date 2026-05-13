@@ -5,13 +5,13 @@ import { useAuth } from './composables/useAuth.js'
 import { useSidebar } from './composables/useSidebar.js'
 
 const { isLoggedIn } = useAuth()
-const { isOpen } = useSidebar() // needed here to shift <main> when sidebar collapses
+const { isOpen } = useSidebar() // needed to shift <main> when the sidebar collapses
 </script>
 
 <template>
   <div class="flex min-h-screen bg-[#111114]">
 
-    <!-- Global red glow — fixed to full viewport, always behind everything -->
+    <!-- Global red glow - fixed to full viewport, always behind everything -->
     <div v-if="isLoggedIn" class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <div class="glow-a absolute rounded-full"
            style="width: 100vw; height: 100vw; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -29,7 +29,7 @@ const { isOpen } = useSidebar() // needed here to shift <main> when sidebar coll
 
     <template v-if="isLoggedIn">
       <Sidebar />
-      <!-- left offset matches the sidebar width (w-56 = 224px); drops to 0 when collapsed -->
+      <!-- left offset matches sidebar width (w-56 = 224px), drops to 0 when collapsed -->
       <main
         class="fixed top-0 bottom-0 right-0 overflow-y-auto z-10 transition-all duration-300"
         :class="isOpen ? 'left-56' : 'left-0'"

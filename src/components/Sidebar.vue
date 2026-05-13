@@ -4,10 +4,10 @@ import { useAuth } from '../composables/useAuth.js'
 import { useSidebar } from '../composables/useSidebar.js'
 
 const route = useRoute()
-const { username } = useAuth() // used for the avatar initial in the header
+const { username } = useAuth() // for the avatar initial in the header
 const { isOpen, toggle } = useSidebar()
 
-// Defined here rather than a router meta field so it's easy to reorder visually
+// Kept here instead of router meta so it's easy to reorder visually
 const navItems = [
   { name: 'Dashboard', path: '/', icon: 'grid' },
   { name: 'My Collection', path: '/archive', icon: 'book' },
@@ -16,10 +16,10 @@ const navItems = [
   { name: 'Settings', path: '/settings', icon: 'settings' },
 ]
 
-// Root path needs exact match to avoid always being "active"
+// Root path needs exact match, otherwise it's always "active"
 function isActive(path) {
   if (path === '/') return route.path === '/'
-  return route.path.startsWith(path) // catches nested routes like /archive/5
+  return route.path.startsWith(path) // handles nested routes like /archive/5
 }
 </script>
 
