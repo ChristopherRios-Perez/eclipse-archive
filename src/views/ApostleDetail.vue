@@ -2,17 +2,28 @@
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCovers } from '../composables/useCovers.js'
+import { useProgress } from '../composables/useProgress.js'
 import { apostles } from '../data/apostles.js'
 
 const route = useRoute()
 const router = useRouter()
 const { fetchAllCovers, getCover } = useCovers()
+const { state } = useProgress()
 const apostleId = computed(() => parseInt(route.params.id))
 
 onMounted(fetchAllCovers)
 
-
 const apostle = computed(() => apostles.find(a => a.id === apostleId.value))
+
+function hasReached(ap) {
+  if (!ap) return true
+  const match = ap.firstAppearance.match(/Volume (\d+)/)
+  if (!match) return true
+  const vol = parseInt(match[1])
+  return state.completedVolumes.includes(vol) || state.currentVolume >= vol
+}
+
+const reached = computed(() => hasReached(apostle.value))
 
 const statusColors = {
   'Alive': '#16a34a',
@@ -58,8 +69,11 @@ const arcColors = {
           <div class="mt-4 bg-[#16161a] border border-[#2d2d38] rounded-xl p-4 space-y-3">
             <div>
               <p class="text-[#5a5a72] text-xs mb-1">Status</p>
-              <span class="text-xs px-2 py-0.5 rounded font-medium" :style="{ background: statusColors[apostle.status] + '22', color: statusColors[apostle.status] }">
+              <span v-if="reached" class="text-xs px-2 py-0.5 rounded font-medium" :style="{ background: statusColors[apostle.status] + '22', color: statusColors[apostle.status] }">
                 {{ apostle.status }}
+              </span>
+              <span v-else class="text-xs px-2 py-0.5 rounded font-medium bg-[#23232b] text-[#5a5a72]">
+                Unknown
               </span>
             </div>
             <div>
