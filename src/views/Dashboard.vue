@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useProgress, getVolumeChapters, CHAPTER_COUNTS } from '../composables/useProgress.js'
+import { COVER_URLS } from '../data/covers.js'
 import { useAuth } from '../composables/useAuth.js'
 import { useSidebar } from '../composables/useSidebar.js'
 import { useBadges } from '../composables/useBadges.js'
@@ -31,40 +32,13 @@ const {
 // Avatar dropdown state + cover art for the currently reading card
 const showUserMenu = ref(false)
 const currentCoverUrl = ref(null)
-const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
-const isLocal = window.location.hostname === 'localhost'
-const coverApiBase = isLocal
-  ? `https://api.mangadex.org/cover?manga[]=${MANGA_ID}`
-  : `/api/covers?manga[]=${MANGA_ID}`
-const coversCache = ref([])
 
-// Paginates through MangaDex covers once and caches them - no need to hit the API again on re-renders
-async function loadCovers() {
-  if (coversCache.value.length) return
-  try {
-    let all = [], offset = 0
-    while (true) {
-      const r = await fetch(`${coverApiBase}&limit=100&offset=${offset}&order[volume]=asc`)
-      if (!r.ok) break
-      const { data, total } = await r.json()
-      all = all.concat(data)
-      offset += 100
-      if (offset >= total || !data.length) break
-    }
-    coversCache.value = all
-  } catch {}
-}
-
-// Prefer English locale (Dark Horse / Deluxe), fall back to whatever's available
+// Covers are bundled from src/data/covers.js - direct lookup, no API call
 function resolveVolumeCover(vol) {
-  const num = parseInt(vol)
-  const match =
-    coversCache.value.find(c => parseInt(c.attributes.volume) === num && c.attributes.locale === 'en') ||
-    coversCache.value.find(c => parseInt(c.attributes.volume) === num)
-  if (match) currentCoverUrl.value = `https://uploads.mangadex.org/covers/${MANGA_ID}/${match.attributes.fileName}.512.jpg`
+  currentCoverUrl.value = COVER_URLS[parseInt(vol)] ?? null
 }
 
-onMounted(async () => { await loadCovers(); resolveVolumeCover(state.currentVolume) })
+onMounted(() => resolveVolumeCover(state.currentVolume))
 watch(() => state.currentVolume, vol => resolveVolumeCover(vol))
 
 function handleLogout() { showUserMenu.value = false; logout() }
