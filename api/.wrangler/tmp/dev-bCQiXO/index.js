@@ -2315,7 +2315,7 @@ var user_default = user;
 // src/index.js
 var app = new Hono2();
 app.use("*", cors({
-  origin: ["http://localhost:5173", "https://eclipse-archive.christopherr308.workers.dev"],
+  origin: ["http://localhost:5173", "http://localhost:5174", "https://eclipse-archive.christopherr308.workers.dev"],
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"]
 }));

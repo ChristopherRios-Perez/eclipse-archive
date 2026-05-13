@@ -9,7 +9,7 @@ const app = new Hono()
 // Allow requests from the Vue frontend on any origin during dev.
 // Lock this down to your deployed URL in production.
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'https://eclipse-archive.christopherr308.workers.dev'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://eclipse-archive.christopherr308.workers.dev'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
 }))
