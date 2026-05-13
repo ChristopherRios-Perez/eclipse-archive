@@ -24,6 +24,19 @@ function loadAccounts() {
   }
 }
 
+// Seed a test account so instructors/graders can log in on any browser
+// without needing to create an account first.
+const TEST_ACCOUNT = { username: 'TestUser', email: 'test@123test.com', password: '12345678' }
+;(function seedTestAccount() {
+  try {
+    const accounts = loadAccounts()
+    if (!accounts.find(a => a.email === TEST_ACCOUNT.email)) {
+      accounts.push(TEST_ACCOUNT)
+      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts))
+    }
+  } catch {}
+})()
+
 // Module-level so auth state is shared across all composable calls
 // without needing a store - fine at this scale
 const state = reactive({
