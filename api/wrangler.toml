@@ -7,7 +7,7 @@ compatibility_date = "2024-01-01"
 # then paste the id below.
 [[kv_namespaces]]
 binding = "ECLIPSE_KV"
-id = "REPLACE_WITH_YOUR_KV_ID"
+id = "c9ef22b5b1044e03937d819fe9a8904a"
 
 [vars]
 # Secret used to sign JWT tokens. Set via `wrangler secret put JWT_SECRET`
