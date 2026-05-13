@@ -2,6 +2,17 @@ import { ref } from 'vue'
 
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
 
+// On localhost hit MangaDex directly. On production, route through the
+// Cloudflare Pages Function at /api/covers which proxies the request
+// server-side and avoids the CORS restriction on the workers.dev domain.
+const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+function coverApiUrl(params) {
+  const qs = `manga[]=${MANGA_ID}&${params}`
+  return isLocal
+    ? `https://api.mangadex.org/cover?${qs}`
+    : `/api/covers?${qs}`
+}
+
 // Shared cache - only fetches once regardless of how many components use this
 const coverMap = ref({})
 const fetched = ref(false)
@@ -15,7 +26,7 @@ export function useCovers() {
       let offset = 0
       while (Object.keys(coverMap.value).length < 41) {
         const r = await fetch(
-          `https://api.mangadex.org/cover?manga[]=${MANGA_ID}&limit=100&offset=${offset}&order[volume]=asc`
+          coverApiUrl(`limit=100&offset=${offset}&order[volume]=asc`)
         )
         if (!r.ok) break
         const { data, total } = await r.json()
