@@ -3,6 +3,9 @@ import { computed } from 'vue'
 import { useProgress } from '../composables/useProgress.js'
 import { useSidebar } from '../composables/useSidebar.js'
 import { useBadges } from '../composables/useBadges.js'
+import { apostles } from '../data/apostles.js'
+
+const TOTAL_APOSTLES = apostles.length
 
 const { isOpen } = useSidebar()
 const { badges, unlockedCount } = useBadges()
@@ -179,17 +182,17 @@ function getArcColor(vol) {
             </div>
             <div class="flex-1 h-px bg-[#2d2d38]"></div>
             <div class="text-center">
-              <p class="text-white font-bold text-3xl">16</p>
+              <p class="text-white font-bold text-3xl">{{ TOTAL_APOSTLES }}</p>
               <p class="text-[#5a5a72] text-xs mt-0.5">Total Known</p>
             </div>
           </div>
           <div class="h-2 bg-[#23232b] rounded-full overflow-hidden">
             <div
               class="h-full bg-[#c10b21] rounded-full transition-all duration-700"
-              :style="{ width: Math.round((state.apostlesEncountered.length / 16) * 100) + '%' }"
+              :style="{ width: Math.round((state.apostlesEncountered.length / TOTAL_APOSTLES) * 100) + '%' }"
             ></div>
           </div>
-          <p class="text-[#5a5a72] text-xs mt-2 text-right">{{ Math.round((state.apostlesEncountered.length / 16) * 100) }}% catalogued</p>
+          <p class="text-[#5a5a72] text-xs mt-2 text-right">{{ Math.round((state.apostlesEncountered.length / TOTAL_APOSTLES) * 100) }}% catalogued</p>
         </div>
 
         <!-- Volumes remaining breakdown -->
