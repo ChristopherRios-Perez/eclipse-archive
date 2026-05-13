@@ -394,7 +394,7 @@ function formatTime(iso) {
               <div class="mb-1">
                 <div class="flex justify-between text-xs text-[#5a5a72] mb-1">
                   <span>Chapter Progress</span>
-                  <span>{{ (state.completedChapters[state.currentVolume] ?? []).length }} / {{ (state.completedChapters[state.currentVolume]?.length || 0) > 0 || true ? getVolumeChaptersCount(state.currentVolume) : 8 }} chapters</span>
+                  <span>{{ (state.completedChapters[state.currentVolume] ?? []).length }} / {{ getVolumeChaptersCount(state.currentVolume) }} chapters</span>
                 </div>
                 <div class="h-1.5 bg-[#23232b] rounded-full overflow-hidden">
                   <div class="h-full bg-[#c10b21] rounded-full" :style="{ width: getChapterPct(state.currentVolume) + '%' }"></div>

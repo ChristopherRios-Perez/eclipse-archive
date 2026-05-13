@@ -30,6 +30,16 @@ function loadFromStorage() {
 
 const saved = loadFromStorage()
 
+// Backfill completedChapters for volumes that were marked complete before chapter tracking existed.
+// Without this, old saves would show all chapters unchecked even for fully read volumes.
+if (saved?.completedVolumes?.length && saved?.completedChapters) {
+  saved.completedVolumes.forEach(volId => {
+    if (!saved.completedChapters[volId] || saved.completedChapters[volId].length === 0) {
+      saved.completedChapters[volId] = getVolumeChapters(volId)
+    }
+  })
+}
+
 const state = reactive({
   completedVolumes:   saved?.completedVolumes   ?? [],
   completedChapters:  saved?.completedChapters  ?? {}, // volId -> [chapterNum, ...]

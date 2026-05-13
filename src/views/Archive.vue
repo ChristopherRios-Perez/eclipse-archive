@@ -6,7 +6,7 @@ import { useSidebar } from '../composables/useSidebar.js'
 import { useSettings } from '../composables/useSettings.js'
 
 const router = useRouter()
-const { isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes, toggleWishlist, isWishlisted, state } = useProgress()
+const { state, isVolumeCompleted, toggleVolume, completedCount, totalVolumes, getVolumeRating, getVolumeNotes, toggleWishlist, isWishlisted } = useProgress()
 const { settings } = useSettings()
 const { isOpen } = useSidebar() // nudges the header title when sidebar collapses
 
@@ -102,7 +102,8 @@ const filtered = computed(() => {
 })
 
 const inProgressCount = computed(() => {
-  return volumes.value.filter(v => !isVolumeCompleted(v.id) && v.id <= 1).length
+  // A volume counts as in-progress if it's the current reading volume and not yet fully completed
+  return volumes.value.filter(v => !isVolumeCompleted(v.id) && v.id === state.currentVolume).length
 })
 
 // Arc color palette - Black Swordsman and Fantasia both use crimson intentionally
