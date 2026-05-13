@@ -44,6 +44,15 @@ function getArc(vol) {
 // MangaDex UUID for Berserk - used to scope cover art queries
 const MANGA_ID = '801513ba-a712-498c-8f57-cae55b38cc92'
 
+// Route through the Cloudflare Pages Function proxy on production to avoid CORS
+const isLocal = window.location.hostname === 'localhost'
+function coverUrl(offset, limit) {
+  const qs = `manga[]=${MANGA_ID}&limit=${limit}&offset=${offset}&order[volume]=asc`
+  return isLocal
+    ? `https://api.mangadex.org/cover?${qs}`
+    : `/api/covers?${qs}`
+}
+
 async function fetchBerserkCovers() {
   try {
     const coverMap = {}
@@ -52,9 +61,7 @@ async function fetchBerserkCovers() {
 
     // Paginate until we have covers for all 41 volumes
     while (Object.keys(coverMap).length < 41) {
-      const resp = await fetch(
-        `https://api.mangadex.org/cover?manga[]=${MANGA_ID}&limit=${limit}&offset=${offset}&order[volume]=asc`
-      )
+      const resp = await fetch(coverUrl(offset, limit))
       if (!resp.ok) throw new Error()
       const { data, total } = await resp.json()
       if (!data.length) break
