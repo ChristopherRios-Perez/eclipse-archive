@@ -24,7 +24,7 @@ function loadAccounts() {
   }
 }
 
-// Seed a test account so instructors/graders can log in on any browser
+// Seed a test account so instructor can log in on any browser
 // without needing to create an account first.
 const TEST_ACCOUNT = { username: 'TestUser', email: 'test@123test.com', password: '12345678' }
 ;(function seedTestAccount() {
